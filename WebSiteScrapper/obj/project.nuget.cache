@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "dqq9LTihiU5D/iBH9H5RT3wC53cNBExRjVkdswVqaN9KKbrpR1jQv1h2jnxQrA3mf4DleMHGSONEjVbE7Z3qxw==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\themis\\source\\repos\\WebSiteScrapper\\WebSiteScrapper\\WebSiteScrapper.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\themis\\.nuget\\packages\\htmlagilitypack\\1.11.46\\htmlagilitypack.1.11.46.nupkg.sha512"
+  ],
+  "logs": []
+}

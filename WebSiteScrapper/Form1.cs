@@ -17,6 +17,16 @@ namespace WebSiteScrapper
             // Extract specific data from the website using HtmlAgilityPack methods
             var title = htmlDoc.DocumentNode.SelectSingleNode("//head/title").InnerText;
             MessageBox.Show(title);
+            
+            foreach(var element in htmlDoc.DocumentNode.SelectNodes("//a"))
+            {
+                if(element.Attributes["href"]!= null)
+                {
+                    txtLinks.Text += element.Attributes["href"].Value + "\n";
+                }
+                
+                
+            }
         }
     }
 }

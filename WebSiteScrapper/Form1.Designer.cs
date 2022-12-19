@@ -44,10 +44,12 @@
             // 
             // txtLinks
             // 
-            this.txtLinks.Location = new System.Drawing.Point(92, 149);
+            this.txtLinks.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtLinks.Location = new System.Drawing.Point(3, 149);
             this.txtLinks.Multiline = true;
             this.txtLinks.Name = "txtLinks";
-            this.txtLinks.Size = new System.Drawing.Size(556, 248);
+            this.txtLinks.Size = new System.Drawing.Size(794, 289);
             this.txtLinks.TabIndex = 1;
             // 
             // Form1

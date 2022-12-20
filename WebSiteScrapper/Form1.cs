@@ -1,3 +1,6 @@
+using System.Data;
+using System.Reflection.Metadata.Ecma335;
+
 namespace WebSiteScrapper
 {
     public partial class Form1 : Form
@@ -12,23 +15,44 @@ namespace WebSiteScrapper
             var scraper = new Scraper("https://www.in.gr/");
 
             // Scrape the website
-            var htmlDoc = scraper.Scrape();
+            HtmlAgilityPack.HtmlDocument htmlDoc = scraper.Scrape();
 
             // Extract specific data from the website using HtmlAgilityPack methods
             var title = htmlDoc.DocumentNode.SelectSingleNode("//head/title").InnerText;
-            MessageBox.Show(title);
+            lblUrl.Text = title + " - " + "https://www.in.gr/";
+            //MessageBox.Show(title);
+
             
-            foreach(var element in htmlDoc.DocumentNode.SelectNodes("//a"))
-            {
-                if(element.Attributes["href"]!= null)
-                {
-                    txtLinks.Text += element.Attributes["href"].Value + " - " + HashString(element.Attributes["href"].Value) + "\n";
-                }
-                
-                
-            }
+            dgrView.DataSource = CreateDataTable(htmlDoc);
+            dgrView.Update();
+
         }
 
+        private DataTable CreateDataTable(HtmlAgilityPack.HtmlDocument htmlDoc)
+        {
+            // Create a new DataTable.
+            DataTable table = new DataTable();
+
+            // Add two columns to the DataTable.
+            table.Columns.Add("Index", typeof(int));
+            table.Columns.Add("hash", typeof(string));
+            table.Columns.Add("url", typeof(string));
+
+            // Add some data to the DataTable.
+            int i = 0;
+            foreach (var element in htmlDoc.DocumentNode.SelectNodes("//a"))
+            {
+                
+                if (element.Attributes["href"] != null)
+                {
+                    i++;
+                    //txtLinks.Text += element.Attributes["href"].Value + " - " + HashString(element.Attributes["href"].Value) + "\n";
+                    table.Rows.Add(i, HashString(element.Attributes["href"].Value), element.Attributes["href"].Value);
+                }
+            }
+
+            return table;
+        }
         private string HashString(string text, string salt = "")
         {
             if (String.IsNullOrEmpty(text))

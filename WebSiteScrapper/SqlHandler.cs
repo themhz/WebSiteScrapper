@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
+using System.Data;
 
 namespace WebSiteScrapper
 {
@@ -16,7 +17,7 @@ namespace WebSiteScrapper
             this.connectionString = connectionString;
         }
 
-        public void ExecuteQuery(string query)
+        public DataSet ExecuteQuery(string query)
         {
             // Create a connection
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -27,18 +28,14 @@ namespace WebSiteScrapper
                     // Open the connection
                     connection.Open();
 
-                    // Execute the command
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        // Process the result
-                        while (reader.Read())
-                        {
-                            Console.WriteLine("{0} {1}", reader[0], reader[1]);
-                        }
-                    }
+                    SqlDataAdapter adapter = new SqlDataAdapter(command);
+                    DataSet dataSet = new DataSet();
+                    adapter.Fill(dataSet);
 
                     // Close the connection
                     connection.Close();
+
+                    return dataSet;
                 }
             }
         }

@@ -1,5 +1,11 @@
+using HtmlAgilityPack;
+using Microsoft.VisualBasic.ApplicationServices;
 using System.Data;
+using System.Diagnostics;
 using System.Reflection.Metadata.Ecma335;
+using static System.Formats.Asn1.AsnWriter;
+using System.Configuration;
+using System.Data.SqlClient;
 
 namespace WebSiteScrapper
 {
@@ -10,21 +16,53 @@ namespace WebSiteScrapper
             InitializeComponent();
         }
 
+        private string url;
         private void button1_Click(object sender, EventArgs e)
         {
-            var scraper = new Scraper("https://www.in.gr/");
+            //url = "https://www.in.gr/";
+            //var scraper = new Scraper(url);
+            //List<string> urls = scraper.GetAllUrlsFromSite();
+            string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
+
+            SqlHandler sh = new SqlHandler(connectionString);
+
+            DataSet dataSet = sh.ExecuteQuery("select * from urls");
+
+            dgrView.DataSource = dataSet.Tables[0];
+            dgrView.Update();
+            //foreach (DataRow row in dataSet.Tables[0].Rows)
+            //{
+            //    foreach (DataColumn column in dataSet.Tables[0].Columns)
+            //    {
+            //        Debug.WriteLine(row[column]);
+            //    }
+            //}
+
+
+
+
+
+            //List<HtmlNode> nodes = scraper.GetUrls(scraper.Scrape());
+
+            //foreach (string node in urls)
+            //{
+            //    Debug.WriteLine(node);
+            //}
+            //DataTable dt = new DataTable();
+
 
             // Scrape the website
-            HtmlAgilityPack.HtmlDocument htmlDoc = scraper.Scrape();
+            //HtmlAgilityPack.HtmlDocument htmlDoc = scraper.Scrape();
+
 
             // Extract specific data from the website using HtmlAgilityPack methods
-            var title = htmlDoc.DocumentNode.SelectSingleNode("//head/title").InnerText;
-            lblUrl.Text = title + " - " + "https://www.in.gr/";
-            //MessageBox.Show(title);
+            //var title = htmlDoc.DocumentNode.SelectSingleNode("//head/title").InnerText;
+            //lblUrl.Text = title + " - " + url;
 
-            
-            dgrView.DataSource = CreateDataTable(htmlDoc);
-            dgrView.Update();
+            //dt = CreateDataTable(htmlDoc);
+
+            //dgrView.DataSource = dt;
+            //dgrView.Update();
 
         }
 

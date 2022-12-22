@@ -17,7 +17,7 @@ namespace WebSiteScrapper
             this.connectionString = connectionString;
         }
 
-        public DataSet ExecuteQuery(string query)
+        public DataSet Select(string query)
         {
             // Create a connection
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -38,6 +38,11 @@ namespace WebSiteScrapper
                     return dataSet;
                 }
             }
+        }
+
+        public void Insert(string query)
+        {
+
         }
     }
 }

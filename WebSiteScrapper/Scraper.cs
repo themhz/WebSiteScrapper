@@ -7,13 +7,18 @@ using System.Net;
 using HtmlAgilityPack;
 using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using System.Diagnostics;
+using WebSiteScrapper.Data;
+using WebSiteScrapper.Models;
+using System.Security.Policy;
 
 namespace WebSiteScrapper
 {
     public class Scraper
     {
         private readonly string baseurl;
-        private String url;
+        private string? url;
+        private string? title;
+        private string? hashedPage;
         private List<string> urls;
 
         public Scraper(string url)
@@ -33,6 +38,7 @@ namespace WebSiteScrapper
                 try
                 {
                     var html = client.DownloadString(url);
+                    this.hashedPage = this.HashString(html);
                     htmlDoc.LoadHtml(html);
                 }
                 catch (Exception ex)
@@ -56,9 +62,10 @@ namespace WebSiteScrapper
         {
             for (int i = 0; i < urls.Count; i++)
             {
-                this.url = urls[i];
+                this.url = urls[i];                
                 HtmlDocument doc = this.Scrape();
-
+                this.title = doc.DocumentNode.SelectSingleNode("//title")!=null ? doc.DocumentNode.SelectNodes("//title").ToString() : " ";
+                
                 if (doc.DocumentNode.SelectNodes("//a") != null)
                 {
                     foreach (var element in doc.DocumentNode.SelectNodes("//a"))
@@ -74,6 +81,22 @@ namespace WebSiteScrapper
                                 tmpUrl = this.baseurl + tmpUrl;
                                 if (!this.urls.Contains(tmpUrl)){
                                     this.urls.Add(tmpUrl);
+
+                                    //Save urls in the database
+                                    WebSiteScrapperContext context = new WebSiteScrapperContext();
+                                    Urls url = new Urls()
+                                    {
+                                        Id = Guid.NewGuid().ToString(),
+                                        Title = this.title,
+                                        Baseurl = this.url,
+                                        Url = tmpUrl,
+                                        Date = new DateTime(),
+                                        Hash = this.hashedPage
+
+                                    };
+
+                                    context.Add(url);
+                                    context.SaveChanges();
                                 }
                                 
                             }
@@ -99,6 +122,29 @@ namespace WebSiteScrapper
             
 
             return this.urls;
+        }
+
+        private string HashString(string text, string salt = "")
+        {
+            if (String.IsNullOrEmpty(text))
+            {
+                return String.Empty;
+            }
+
+            // Uses SHA256 to create the hash
+            using (var sha = new System.Security.Cryptography.SHA256Managed())
+            {
+                // Convert the string to a byte array first, to be processed
+                byte[] textBytes = System.Text.Encoding.UTF8.GetBytes(text + salt);
+                byte[] hashBytes = sha.ComputeHash(textBytes);
+
+                // Convert back to a string, removing the '-' that BitConverter adds
+                string hash = BitConverter
+                    .ToString(hashBytes)
+                    .Replace("-", String.Empty);
+
+                return hash;
+            }
         }
     }
 }

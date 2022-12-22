@@ -6,6 +6,9 @@ using System.Reflection.Metadata.Ecma335;
 using static System.Formats.Asn1.AsnWriter;
 using System.Configuration;
 using System.Data.SqlClient;
+using WebSiteScrapper.Data;
+using WebSiteScrapper.Models;
+
 
 namespace WebSiteScrapper
 {
@@ -19,17 +22,22 @@ namespace WebSiteScrapper
         private string url;
         private void button1_Click(object sender, EventArgs e)
         {
-            //url = "https://www.in.gr/";
-            //var scraper = new Scraper(url);
-            //List<string> urls = scraper.GetAllUrlsFromSite();
-            string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
 
-            SqlHandler sh = new SqlHandler(connectionString);
+            url = "https://www.in.gr/";
+            var scraper = new Scraper(url);
+            List<string> urls = scraper.GetAllUrlsFromSite();
 
-            DataSet dataSet = sh.ExecuteQuery("select * from urls");
+//###############
+//            string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
 
-            dgrView.DataSource = dataSet.Tables[0];
-            dgrView.Update();
+//            SqlHandler sh = new SqlHandler(connectionString);
+
+//            DataSet dataSet = sh.Select("select * from urls");
+
+//            dgrView.DataSource = dataSet.Tables[0];
+//            dgrView.Update();
+//###############
+
             //foreach (DataRow row in dataSet.Tables[0].Rows)
             //{
             //    foreach (DataColumn column in dataSet.Tables[0].Columns)

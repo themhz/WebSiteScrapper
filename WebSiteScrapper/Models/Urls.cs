@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +13,11 @@ namespace WebSiteScrapper.Models
 {
     internal class Urls
     {
-     
-            public string Id { get; set; }
+
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key, Column(Order = 0)] 
+            public Int64 Id { get; set; }
+
             public string? Title { get; set; }
             [Required]
             public string? Url { get; set; }
@@ -27,8 +31,6 @@ namespace WebSiteScrapper.Models
             [Required]
             public DateTime? Date { get; set; }
 
-            [Required]
-            public int Metritis { get; set; }
-
+            
     }
 }

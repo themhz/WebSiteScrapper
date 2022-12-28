@@ -41,7 +41,7 @@ namespace WebSiteScrapper
             this.form = _form;
             
         }
-        public HtmlDocument Scrape()
+        public HtmlDocument GetHtmlPage()
         {
             var htmlDoc = new HtmlDocument();
             using (var client = new WebClient())
@@ -59,7 +59,7 @@ namespace WebSiteScrapper
                 
             }
             return htmlDoc;
-        }        
+        }         
         public List<HtmlNode> GetUrls(HtmlDocument htmlDoc)
         {            
             List<HtmlNode> urls = new List<HtmlNode>();
@@ -69,8 +69,7 @@ namespace WebSiteScrapper
             }            
             return urls;
         }
-
-        private string getTitle(HtmlDocument doc)
+        public string GetTitle(HtmlDocument doc)
         {            
             if (doc.DocumentNode.SelectSingleNode("//title") != null)
             {
@@ -81,8 +80,7 @@ namespace WebSiteScrapper
                 return "";
             }            
         }
-
-        private List<HtmlNode>? getLinks(HtmlDocument doc)
+        public List<HtmlNode>? GetLinks(HtmlDocument doc)
         {
            
             if (doc.DocumentNode.SelectNodes("//a") == null)
@@ -102,22 +100,20 @@ namespace WebSiteScrapper
                 }
                 return links;
             }                                     
-        }
-        
-        //Get all the urls from the website
+        }                
         public List<string> GetAllUrlsFromSite()
         {
             this.cleanTable("urls");
             int counter = 1;
-            addUrlToDab(this.url, counter);
+            addUrlToDb(this.url);
             
             for (int i = 0; i < urls.Count; i++)
             {
                 
                 this.url = urls[i];                
-                HtmlDocument doc = this.Scrape();
-                this.title = getTitle(doc);
-                List <HtmlNode>? links = getLinks(doc);
+                HtmlDocument doc = this.GetHtmlPage();
+                this.title = GetTitle(doc);
+                List <HtmlNode>? links = GetLinks(doc);
 
                 this.form.SetlabelValue("Working on " + this.url);                
 
@@ -125,7 +121,6 @@ namespace WebSiteScrapper
                 {
                     foreach (HtmlNode element in links)
                     {
-
                         //if they are not in the list add them
                         if (!this.urls.Contains(element.Attributes["href"].Value))
                         {
@@ -140,7 +135,7 @@ namespace WebSiteScrapper
                                     {
                                         this.urls.Add(tmpUrl);
                                         counter++;
-                                        addUrlToDab(tmpUrl, counter);
+                                        addUrlToDb(tmpUrl);
                                     }
                                 }
                                 else
@@ -151,7 +146,7 @@ namespace WebSiteScrapper
                                         {
                                             this.urls.Add(tmpUrl);
                                             counter++;
-                                            addUrlToDab(tmpUrl, counter++);
+                                            addUrlToDb(tmpUrl);
                                         }
                                     }
                                 }
@@ -163,9 +158,32 @@ namespace WebSiteScrapper
             }
             this.form.SetlabelValue("Finished");
             return this.urls;
-        }
-       
+        }       
+        public List<string> GetAllUrlsFromSite_v2()
+        {
+            //Helper just cleans the urls
+            this.cleanTable("urls");
 
+            //Step 1 Add the base url to the database and mark it as visited            
+            int counter = 1;
+            this.title = GetTitle(GetHtmlPage());
+            addUrlToDb(this.url);
+            //Step 2 Get all the urls from the BasePage
+            List<HtmlNode>? links = GetLinks(GetHtmlPage());
+            
+            //Step 3 Add the urls in the database
+
+            //Step 4 Select the next url that has not been visited                        
+            //Step 5 While there is an unvisited url
+            //Step 5.1 Get all the urls from the selected url
+            //Step 5.2 Mark the visited url as visited
+            //Step 5.3 Go to Step 3
+
+
+
+            List<string> urls = new List<string>();
+            return urls;
+        }
         private void cleanTable(string tableName)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
@@ -185,19 +203,25 @@ namespace WebSiteScrapper
                 connection.Close();
             }
         }
+        private void addUrlsToDb(List<HtmlNode> links)
+        {
+            foreach(var link in links)
+            {
+                this.addUrlToDb(link.Attributes["href"].Value);
+            }
 
-        private void addUrlToDab(string tmpUrl, int metritis)
+        }
+        private void addUrlToDb(string tmpUrl)
         {
             WebSiteScrapperContext context = new WebSiteScrapperContext();
             Urls url = new Urls()
-            {
-                Id = Guid.NewGuid().ToString(),
+            {            
+                
                 Title = this.title,
                 Baseurl = this.url,
                 Url = tmpUrl,
                 Date = new DateTime(),
-                Hash = HashString(tmpUrl),
-                Metritis = metritis
+                Hash = HashString(tmpUrl),                
 
             };
 
@@ -208,7 +232,7 @@ namespace WebSiteScrapper
             }
             
         }
-        private string HashString(string text, string salt = "")
+        public string HashString(string text, string salt = "")
         {
             if (String.IsNullOrEmpty(text))
             {

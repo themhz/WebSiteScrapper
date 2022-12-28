@@ -58,7 +58,7 @@ namespace WebSiteScrapper
 
             var scraper = new Scraper(url, this);
             
-            List<string> urls = scraper.GetAllUrlsFromSite();
+            List<string> urls = scraper.GetAllUrlsFromSite_v2();
 
             DataTable dt = CreateDataTable(urls);
             SetDataTable(dt);

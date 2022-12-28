@@ -1231,6 +1231,19 @@
             "rid": "win"
           }
         }
+      },
+      "test/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/test.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/test.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.WindowsDesktop.App.WindowsForms"
+        ]
       }
     }
   },
@@ -3761,6 +3774,11 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "test/1.0.0": {
+      "type": "project",
+      "path": "../test/test.vbproj",
+      "msbuildProject": "../test/test.vbproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -3770,7 +3788,8 @@
       "Microsoft.EntityFrameworkCore.Design >= 7.0.1",
       "Microsoft.EntityFrameworkCore.SqlServer >= 7.0.1",
       "Microsoft.EntityFrameworkCore.Tools >= 7.0.1",
-      "System.Data.SqlClient >= 4.8.5"
+      "System.Data.SqlClient >= 4.8.5",
+      "test >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -3811,7 +3830,11 @@
       "frameworks": {
         "net6.0-windows7.0": {
           "targetAlias": "net6.0-windows",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\themis\\source\\repos\\WebSiteScrapper\\test\\test.vbproj": {
+              "projectPath": "C:\\Users\\themis\\source\\repos\\WebSiteScrapper\\test\\test.vbproj"
+            }
+          }
         }
       },
       "warningProperties": {

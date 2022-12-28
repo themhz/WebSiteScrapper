@@ -25,7 +25,10 @@ namespace WebSiteScrapper.Models
             public string? Hash { get; set; }
 
             [Required]
-            public DateTime? Date { get; set; }     
+            public DateTime? Date { get; set; }
+
+            [Required]
+            public int Metritis { get; set; }
 
     }
 }

@@ -8,73 +8,65 @@ using System.Configuration;
 using System.Data.SqlClient;
 using WebSiteScrapper.Data;
 using WebSiteScrapper.Models;
-
+using System.Threading;
+using System.Threading.Tasks;
+using test.lala;
 
 namespace WebSiteScrapper
 {
     public partial class Form1 : Form
     {
+        public Form self;
         public Form1()
         {
             InitializeComponent();
+            self = this;
         }
 
         private string url;
         private void button1_Click(object sender, EventArgs e)
         {
-
-            url = "https://www.in.gr/";
-            var scraper = new Scraper(url);
-            List<string> urls = scraper.GetAllUrlsFromSite();
-
-//###############
-//            string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
-
-//            SqlHandler sh = new SqlHandler(connectionString);
-
-//            DataSet dataSet = sh.Select("select * from urls");
-
-//            dgrView.DataSource = dataSet.Tables[0];
-//            dgrView.Update();
-//###############
-
-            //foreach (DataRow row in dataSet.Tables[0].Rows)
-            //{
-            //    foreach (DataColumn column in dataSet.Tables[0].Columns)
-            //    {
-            //        Debug.WriteLine(row[column]);
-            //    }
-            //}
-
-
-
-
-
-            //List<HtmlNode> nodes = scraper.GetUrls(scraper.Scrape());
-
-            //foreach (string node in urls)
-            //{
-            //    Debug.WriteLine(node);
-            //}
-            //DataTable dt = new DataTable();
-
-
-            // Scrape the website
-            //HtmlAgilityPack.HtmlDocument htmlDoc = scraper.Scrape();
-
-
-            // Extract specific data from the website using HtmlAgilityPack methods
-            //var title = htmlDoc.DocumentNode.SelectSingleNode("//head/title").InnerText;
-            //lblUrl.Text = title + " - " + url;
-
-            //dt = CreateDataTable(htmlDoc);
-
-            //dgrView.DataSource = dt;
-            //dgrView.Update();
+            ThreadPool.QueueUserWorkItem(DoWork);         
+        }
+        
+        public delegate void DelSetLabelValue(string text);
+        public void SetlabelValue(string value)
+        {
+            if (this.InvokeRequired) this.Invoke(new DelSetLabelValue(SetlabelValue), value);
+            else this.lblUrl.Text = value;
 
         }
 
-        private DataTable CreateDataTable(HtmlAgilityPack.HtmlDocument htmlDoc)
+        public delegate void DelSetLabelDataView(DataTable dt);
+        public void SetDataTable(DataTable dt)
+        {
+            if (this.InvokeRequired) this.Invoke(new DelSetLabelDataView(SetDataTable), dt);
+            else
+            {
+                dgrView.DataSource = dt;
+                dgrView.Update();
+            }
+
+        }
+        private void DoWork(object state)
+        {
+
+            //SetlabelValue("dasdsa");
+            //url = "https://theotokatosfc.gr/";
+            url = "https://www.civiltech.gr/";
+              //this.SetlabelValue(lblUrl.Text);
+
+            var scraper = new Scraper(url, this);
+            
+            List<string> urls = scraper.GetAllUrlsFromSite();
+
+            DataTable dt = CreateDataTable(urls);
+            SetDataTable(dt);
+
+
+        }
+
+        private DataTable CreateDataTable(List<string> urls)
         {
             // Create a new DataTable.
             DataTable table = new DataTable();
@@ -86,15 +78,10 @@ namespace WebSiteScrapper
 
             // Add some data to the DataTable.
             int i = 0;
-            foreach (var element in htmlDoc.DocumentNode.SelectNodes("//a"))
-            {
-                
-                if (element.Attributes["href"] != null)
-                {
-                    i++;
-                    //txtLinks.Text += element.Attributes["href"].Value + " - " + HashString(element.Attributes["href"].Value) + "\n";
-                    table.Rows.Add(i, HashString(element.Attributes["href"].Value), element.Attributes["href"].Value);
-                }
+            foreach (var element in urls)
+            {                               
+                i++;                    
+                table.Rows.Add(i, HashString(element), element);                
             }
 
             return table;

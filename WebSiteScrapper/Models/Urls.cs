@@ -31,6 +31,9 @@ namespace WebSiteScrapper.Models
             [Required]
             public DateTime? Date { get; set; }
 
+            [Required]
+            public  Boolean Visited { get; set; }
+
             
     }
 }

@@ -67,5 +67,3 @@ C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\obj\Debug\net6.0-wi
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\obj\Debug\net6.0-windows\WebSiteScrapper.pdb
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\obj\Debug\net6.0-windows\WebSiteScrapper.genruntimeconfig.cache
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\obj\Debug\net6.0-windows\ref\WebSiteScrapper.dll
-C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\test.dll
-C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\test.pdb

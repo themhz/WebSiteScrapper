@@ -10,7 +10,6 @@ using WebSiteScrapper.Data;
 using WebSiteScrapper.Models;
 using System.Threading;
 using System.Threading.Tasks;
-using test.lala;
 
 namespace WebSiteScrapper
 {
@@ -26,16 +25,31 @@ namespace WebSiteScrapper
         private string url;
         private void button1_Click(object sender, EventArgs e)
         {
+            button1.Enabled = false;
             ThreadPool.QueueUserWorkItem(DoWork);         
         }
         
-        public delegate void DelSetLabelValue(string text);
-        public void SetlabelValue(string value)
+        public delegate void DelSetLabelValue(string url, string total, string yetToVisit, string visited, string maxYetToVisit);
+        public void SetlabelValue(string url, string total, string yetToVisit, string visited, string maxYetToVisit)
         {
-            if (this.InvokeRequired) this.Invoke(new DelSetLabelValue(SetlabelValue), value);
-            else this.lblUrl.Text = value;
+            if (this.InvokeRequired) this.Invoke(new DelSetLabelValue(SetlabelValue), url, total, yetToVisit, visited, maxYetToVisit);
+            else {
+                this.lblUrl.Text = url;
+                this.lblTotal.Text = total;
+                this.lblYetToVisit.Text = yetToVisit;
+                this.lblVisited.Text = visited;
+                this.lblMaxYetToVisit.Text = maxYetToVisit;
+            }
 
         }
+
+        //public delegate void DelSetlblControlValue(string text);
+        //public void SetlabelControlValue(string value)
+        //{
+        //    if (this.InvokeRequired) this.Invoke(new DelSetlblControlValue(SetlabelControlValue), value);
+        //    else this.lblUrl.Text = value;
+
+        //}
 
         public delegate void DelSetLabelDataView(DataTable dt);
         public void SetDataTable(DataTable dt)
@@ -45,6 +59,24 @@ namespace WebSiteScrapper
             {
                 dgrView.DataSource = dt;
                 dgrView.Update();
+            }
+
+        }
+
+        public delegate void DelToggleProcess();
+        public void ToggleProcess()
+        {
+            if (this.InvokeRequired) this.Invoke(new DelToggleProcess(ToggleProcess), null);
+            else
+            {
+                if(button1.Enabled == false)
+                {
+                    button1.Enabled = true;
+                }
+                else
+                {
+                    button1.Enabled = false;
+                }
             }
 
         }
@@ -62,7 +94,7 @@ namespace WebSiteScrapper
 
             DataTable dt = CreateDataTable(urls);
             SetDataTable(dt);
-
+            button1.Enabled = true;
 
         }
 

@@ -26,7 +26,7 @@ namespace WebSiteScrapper
     {
         public string? protocol;
         private string? baseurl;        
-        private string? url;
+        private string? url { set; get; } = "";
         private string? title;
         private HtmlDocument? HtmlPage;
         private string? hashedPage;
@@ -37,23 +37,25 @@ namespace WebSiteScrapper
         private int linksVisited = 0;
         private int linksYetToVisit = 0;
         private int maxYetToVisit = 0;
-        
+        public WebSiteScrapperContext Context;
 
-        public Scraper(string url, Form1 _form)
+
+
+        public Scraper(string url, Form1 _form, WebSiteScrapperContext _Context)
         {
             //Initialize the base url
             this.baseurl = url;            
             this.form = _form;
             this.initialiseScraper(url);
             this.getUrlProtocol(url);
-            
+            this.Context = _Context;
         }
         //Initialize the base url
         public void initialiseScraper(string url)
         {                        
             this.url = url;
             this.urls = new List<string>();
-            this.images = new List<string>();            
+            this.images = new List<string>();
             GetHtmlPage();
             GetTitle();
             GetLinks();
@@ -164,15 +166,14 @@ namespace WebSiteScrapper
         //    }
         //    this.form.SetlabelValue("Finished");
         //    return this.urls;
-        //}       
-        
+        //}               
+
         public List<String> GetAllUrlsFromSite_v2()
         {
             //Helper just cleans the urls
             this.cleanTable("urls");
 
-            //Step 1 Add the base url to the database and mark it as visited            
-            int counter = 1;
+            //Step 1 Add the base url to the database and mark it as visited                        
             GetTitle();
             addUrlToDb(this.url, true);
 
@@ -205,15 +206,14 @@ namespace WebSiteScrapper
 
 
             return this.GetAllDbUrls();
-        }
-        
+        }        
         private void updateControls()
         {
             this.form.SetlabelValue("Scraping on " + this.url, calculateTotal().ToString(), calculateYetToVisit().ToString(), calculateVisited().ToString(), this.maxYetToVisit.ToString());
         }
         private void updateUrlAsVisited(long id)
-        {
-            WebSiteScrapperContext context = new WebSiteScrapperContext();
+        {            
+            this.Context.ChangeTracker.Clear();
             Urls url = new Urls()
             {
                 Id = id,
@@ -227,30 +227,30 @@ namespace WebSiteScrapper
 
             if (url != null)
             {
-                context.Update(url);
-                context.SaveChanges();
+                this.Context.Update(url);
+                this.Context.SaveChanges();
                 
             }
         }
         private Urls getNextUrlFromDb()
         {
-            WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var url = context.Urls.Where(s => s.Visited == false)                                          
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
+            var url = this.Context.Urls.Where(s => s.Visited == false)                                          
                         .FirstOrDefault();
 
             return url;
         }
         private int calculateVisited()
         {
-            WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var url = context.Urls.Where(s => s.Visited == true).ToList();
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
+            var url = this.Context.Urls.Where(s => s.Visited == true).ToList();
 
             return url.Count();
         }
         private int calculateYetToVisit()
         {
-            WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var url = context.Urls.Where(s => s.Visited == false).ToList();
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
+            var url = this.Context.Urls.Where(s => s.Visited == false).ToList();
 
             if (maxYetToVisit < url.Count())
                 maxYetToVisit = url.Count();
@@ -259,8 +259,8 @@ namespace WebSiteScrapper
         }
         private int calculateTotal()
         {
-            WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var url = context.Urls.ToList();
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
+            var url = this.Context.Urls.ToList();
 
             return url.Count();
         }
@@ -289,7 +289,7 @@ namespace WebSiteScrapper
             {
                 foreach (var link in links)
                 {
-                    if (!isInDb(link.Attributes["href"].Value) && isUrlInternal(link.Attributes["href"].Value))
+                    if (!isInDb(link.Attributes["href"].Value.Trim().ToLower()) && isUrlInternal(link.Attributes["href"].Value.Trim().ToLower()))
                     {
                         this.addUrlToDb(link.Attributes["href"].Value, false);
                     }
@@ -308,17 +308,16 @@ namespace WebSiteScrapper
 
             return false;
         }
-        private Boolean isInDb(string url)
-        {
-            WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var lurl = context.Urls.Where(s => s.Url == url)
+        public Boolean isInDb(string url)
+        {            
+            var lurl = this.Context.Urls.Where(s => s.Url == url)
                         .FirstOrDefault();
 
             return lurl != null ? true : false;            
         }
         private void addUrlToDb(string tmpUrl, Boolean visited)
         {
-            WebSiteScrapperContext context = new WebSiteScrapperContext();
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
             Urls url = new Urls()
             {            
                 
@@ -333,8 +332,8 @@ namespace WebSiteScrapper
 
             if (url != null)
             {
-                context.Add(url);
-                context.SaveChanges();
+                this.Context.Add(url);
+                this.Context.SaveChanges();
             }
             
         }
@@ -413,8 +412,8 @@ namespace WebSiteScrapper
         }
         public List<string> GetAllDbUrls()
         {
-            WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var url = context.Urls.ToList();
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
+            var url = this.Context.Urls.ToList();
 
             return null;
         }

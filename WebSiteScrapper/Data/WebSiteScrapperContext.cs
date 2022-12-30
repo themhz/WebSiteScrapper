@@ -9,13 +9,17 @@ using System.Configuration;
 
 namespace WebSiteScrapper.Data
 {
-    internal class WebSiteScrapperContext:DbContext
-    {
-        public DbSet<Urls> Urls { get; set; } = null!;
-
+    public class WebSiteScrapperContext:DbContext
+    {        
+        internal DbSet<Urls> Urls { get; set; } = null!;
+        private string ConnectionString;
+        public WebSiteScrapperContext(string _connectionString){
+            this.ConnectionString = _connectionString;
+         
+        }        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
+        {         
+            optionsBuilder.UseSqlServer(this.ConnectionString);
         }
     }
 }

@@ -6,7 +6,6 @@ C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\testhost.exe
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\Microsoft.TestPlatform.PlatformAbstractions.dll
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\Microsoft.VisualStudio.TestPlatform.MSTest.TestAdapter.dll
-C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.Interface.dll
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\Microsoft.VisualStudio.TestPlatform.MSTestAdapter.PlatformServices.dll
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\Microsoft.TestPlatform.AdapterUtilities.dll
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\WebSiteScrapperTests.deps.json
@@ -146,3 +145,18 @@ C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\obj\Debug\net6
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\obj\Debug\net6.0-windows\WebSiteScrapperTests.pdb
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\obj\Debug\net6.0-windows\WebSiteScrapperTests.genruntimeconfig.cache
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\obj\Debug\net6.0-windows\ref\WebSiteScrapperTests.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\WebSiteScrapperTests.dll.config
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\cs\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\de\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\es\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\fr\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\it\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\ja\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\ko\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\pl\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\pt-BR\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\ru\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\tr\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\zh-Hans\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\zh-Hant\Microsoft.VisualStudio.TestPlatform.TestFramework.resources.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapperTests\bin\Debug\net6.0-windows\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.xml

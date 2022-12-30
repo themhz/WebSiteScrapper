@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace WebSiteScrapper.Models
 {
-    internal class Urls
+    public class Urls
     {
 
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

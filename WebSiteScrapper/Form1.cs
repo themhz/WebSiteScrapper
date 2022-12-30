@@ -10,6 +10,7 @@ using WebSiteScrapper.Data;
 using WebSiteScrapper.Models;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace WebSiteScrapper
 {
@@ -37,23 +38,35 @@ namespace WebSiteScrapper
             //url = "https://www.civiltech.gr/";              
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
             var scraper = new Scraper(url, this, _Context);            
-            List<string> urls = scraper.GetAllUrlsFromSite_v2();
+            List<Urls> urls = scraper.GetAllUrlsFromSite_v2();
 
-            DataTable dt = CreateDataTable(urls);
+            DataTable dt = CreateDataTable();
+            foreach (Urls url in urls)
+            {
+                DataRow row = dt.NewRow();
+                row[0] = url.Id;
+                row[1] = url.Url;
+                row[2] = url.Title;
+                row[3] = url.Hash;
+                dt.Rows.Add(row);
+            }
+
+
             SetDataTable(dt);
-            button1.Enabled = true;
+            ToggleProcess();
 
         }
 
-        private DataTable CreateDataTable(List<string> urls)
+        private DataTable CreateDataTable()
         {
             // Create a new DataTable.
             DataTable table = new DataTable();
 
             // Add two columns to the DataTable.
-            table.Columns.Add("Index", typeof(int));
-            table.Columns.Add("hash", typeof(string));
-            table.Columns.Add("url", typeof(string));            
+            table.Columns.Add("Id", typeof(int));
+            table.Columns.Add("Url", typeof(string));
+            table.Columns.Add("Title", typeof(string));
+            table.Columns.Add("Hash", typeof(string));
 
             return table;
         }        

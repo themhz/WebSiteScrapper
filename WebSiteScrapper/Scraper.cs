@@ -168,7 +168,7 @@ namespace WebSiteScrapper
         //    return this.urls;
         //}               
 
-        public List<String> GetAllUrlsFromSite_v2()
+        public List<Urls> GetAllUrlsFromSite_v2()
         {
             //Helper just cleans the urls
             this.cleanTable("urls");
@@ -189,20 +189,20 @@ namespace WebSiteScrapper
 
 
             //Step 5 While there is an unvisited url
-            while (urls != null)
-            {                
-                //Step 5.1 Get all the urls from the selected url
-                this.url = fixUrl(urls.Url);
-                this.form.SetlabelValue("Scraping on " + this.url, calculateTotal().ToString(), calculateYetToVisit().ToString(), calculateVisited().ToString(), this.maxYetToVisit.ToString());
-                initialiseScraper(this.url);
-                //Step 5.2 Mark the visited url as visited
-                updateUrlAsVisited(urls.Id);
-                //Step 5.3 Go to Step 2                
-                GetHtmlPage();
-                GetTitle();                
-                addUrlsToDb(GetLinks());
-                urls = getNextUrlFromDb();
-            }
+            //while (urls != null)
+            //{                
+            //    //Step 5.1 Get all the urls from the selected url
+            //    this.url = fixUrl(urls.Url);
+            //    this.form.SetlabelValue("Scraping on " + this.url, calculateTotal().ToString(), calculateYetToVisit().ToString(), calculateVisited().ToString(), this.maxYetToVisit.ToString());
+            //    initialiseScraper(this.url);
+            //    //Step 5.2 Mark the visited url as visited
+            //    updateUrlAsVisited(urls.Id);
+            //    //Step 5.3 Go to Step 2                
+            //    GetHtmlPage();
+            //    GetTitle();                
+            //    addUrlsToDb(GetLinks());
+            //    urls = getNextUrlFromDb();
+            //}
 
 
             return this.GetAllDbUrls();
@@ -289,9 +289,10 @@ namespace WebSiteScrapper
             {
                 foreach (var link in links)
                 {
-                    if (!isInDb(link.Attributes["href"].Value.Trim().ToLower()) && isUrlInternal(link.Attributes["href"].Value.Trim().ToLower()))
+                    string _url = fixUrl(link.Attributes["href"].Value);
+                    if (!isInDb(_url) && isUrlInternal(_url))
                     {
-                        this.addUrlToDb(link.Attributes["href"].Value, false);
+                        this.addUrlToDb(_url, false);
                     }
                 }
             }            
@@ -373,49 +374,58 @@ namespace WebSiteScrapper
                 this.protocol = "";
             }
         }
-        private string fixUrl(string url)
+        public string fixUrl(string url)
         {
+            string _url = url;
             if (url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://"))
             {
-                return url;
+                _url = url;
             }
             else if (!(url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://")))
             {
                 if (baseurl.ToLower().EndsWith("/") && url.ToLower().StartsWith("/"))
                 {
-                    return baseurl.Substring(0, baseurl.Length - 1) + url;
+                    _url = baseurl.Substring(0, baseurl.Length - 1) + url;
                 }
                 else if (baseurl.ToLower().EndsWith("/") && url.ToLower().StartsWith("//"))
                 {
-                    return baseurl.Substring(0, baseurl.Length - 1) + url.Substring(1, baseurl.Length);
+                    _url = baseurl.Substring(0, baseurl.Length - 1) + url.Substring(1, baseurl.Length);
                 }
                 else if (baseurl.ToLower().EndsWith("/") && url.ToLower().StartsWith("\""))
                 {
-                    return baseurl.Substring(0, baseurl.Length) + url.Substring(1, baseurl.Length);
+                    _url = baseurl.Substring(0, baseurl.Length) + url.Substring(1, baseurl.Length);
                 }
                 else if (baseurl.ToLower().EndsWith("/") && !url.ToLower().StartsWith("/"))
                 {
-                    return baseurl + url;
+                    _url = baseurl + url;
                 }
                 else if (!baseurl.ToLower().EndsWith("/") && url.ToLower().StartsWith("/"))
                 {
-                    return baseurl + url;
+                    _url = baseurl + url;
                 }
                 else if (!baseurl.ToLower().EndsWith("/") && !url.ToLower().StartsWith("/"))
                 {
-                    return baseurl + "/" + url;
+                    _url = baseurl + "/" + url;
                 }
 
-            }            
+            }
+            _url = _url.ToLower().Trim();
 
-            return url;                                                                   
+            if (_url.Trim().EndsWith("/"))
+            {
+                _url = _url.ToLower().Trim().Substring(0, _url.Length - 1);
+            }
+
+            return _url;                                                                   
         }
-        public List<string> GetAllDbUrls()
+        public List<Urls> GetAllDbUrls()
         {
             //WebSiteScrapperContext context = new WebSiteScrapperContext();
             var url = this.Context.Urls.ToList();
 
-            return null;
+            return url;
         }
+
+        
     }
 }

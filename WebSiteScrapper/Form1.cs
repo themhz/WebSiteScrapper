@@ -31,11 +31,9 @@ namespace WebSiteScrapper
         }
                 
         private void DoWork(object state)
-        {
-
-            
-            url = "https://theotokatosfc.gr/";
-            //url = "https://www.civiltech.gr/";              
+        {            
+            //url = "https://theotokatosfc.gr/";
+            url = "https://www.civiltech.gr/";              
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
             var scraper = new Scraper(url, this, _Context);            
             List<Urls> urls = scraper.GetAllUrlsFromSite_v2();

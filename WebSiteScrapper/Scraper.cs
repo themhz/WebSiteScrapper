@@ -19,70 +19,96 @@ using System.Data.SqlClient;
 using System.Diagnostics.Metrics;
 using Microsoft.Identity.Client;
 using System.ComponentModel;
+using System.Reflection.Metadata;
+using System.IO.Compression;
+using System.Net.Http;
 
 namespace WebSiteScrapper
 {
     public class Scraper
     {
         public string? protocol;
-        private string? baseurl;
-        private Urls Urls;        
-        private HtmlDocument? HtmlPage;
-        private string? hashedPage;        
-        private Form1 form;
-        private int totalLinks = 0;
-        private int linksVisited = 0;
-        private int linksYetToVisit = 0;
-        private int maxYetToVisit = 0;
-        private bool hasError = false;
+        public string? baseurl;
+        public string? refererUrl;
+        public Urls Urls;
+        public HtmlDocument? HtmlPage;
+        public string? hashedPage;
+        public Form1 form;
+        public int totalLinks = 0;
+        public int linksVisited = 0;
+        public int linksYetToVisit = 0;
+        public int maxYetToVisit = 0;
+        public bool hasError = false;
         public WebSiteScrapperContext Context;
-
+        public const bool _VISITED = true;
+        public bool _NOTVISITED = false;
+        public bool paused = false;
 
 
         public Scraper(string url, Form1 _form, WebSiteScrapperContext _Context)
         {
-            this.Urls = new Urls();            
-            this.Urls.Url = url;
-            this.baseurl = url;            
-            this.form = _form;
-            this.initialiseScraper(url);
-            this.getUrlProtocol(url);
             this.Context = _Context;
+            this.form = _form;
+
+            this.Urls = new Urls();
+            this.Urls.Url = FixUrl(url);
+            this.baseurl = this.Urls.Url;
+            this.Urls.Baseurl = this.Urls.Url;
+            this.HtmlPage = this.GetPage();
+            this.GetTitle();            
+            this.GetLinks();
+            this.GetUrlProtocol(url);
+
+           
         }
-        //Initialize the base url
-        public void initialiseScraper(string url)
+        public async static Task<string> GetPage_V2(string uri)
         {
-            this.Urls.Url = url;            
-            GetHtmlPage();
-            GetTitle();
-            GetLinks();
+            string content = null;
+
+            var client = new HttpClient();
+            var response = await client.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                content = await response.Content.ReadAsStringAsync();
+            }            
+
+            return content;
         }
-        public HtmlDocument GetHtmlPage()
+
+
+        public HtmlDocument GetPage(string url="")
         {
             var htmlDoc = new HtmlDocument();
             using (var client = new WebClient())
             {
                 try
                 {
-                    var html = client.DownloadString(this.Urls.Url);                    
-                    this.hashedPage = this.HashString(html);
-                    htmlDoc.LoadHtml(html);
-                    HtmlPage = htmlDoc;
+                    if (url == "")
+                        htmlDoc.LoadHtml(client.DownloadString(this.Urls.Url).Trim());
+                    else
+                        htmlDoc.LoadHtml(client.DownloadString(url).Trim());
+
+                    //this.Urls.Page = htmlDoc.Text;
+                    this.Urls.Page = htmlDoc.ParsedText;
                 }
                 catch (Exception ex)
-                {                    
-                    this.Urls.Title = "URL NOT FOUND : " + this.Urls.Url;
-                    this.hashedPage = "";
+                {
+                    this.Urls.Title = ex.Message + this.Urls.Url;
+                    htmlDoc.LoadHtml("");
+                    this.Urls.Page = "";
                     hasError = true;
-
                 }
-                
+
             }
+
+
+
+            this.HtmlPage = htmlDoc;
             return htmlDoc;
         }                 
         public string? GetTitle()
         {            
-            if (HtmlPage.DocumentNode.SelectSingleNode("//title") != null)
+            if (this.HtmlPage != null && this.HtmlPage.DocumentNode.SelectSingleNode("//title") != null)
             {
                 this.Urls.Title = HtmlPage.DocumentNode.SelectSingleNode("//title").InnerText.ToString();
             }
@@ -91,7 +117,7 @@ namespace WebSiteScrapper
         }
         public List<HtmlNode>? GetLinks()
         {
-            if (HtmlPage.DocumentNode.SelectNodes("//a") == null)
+            if (this.HtmlPage != null && this.HtmlPage.DocumentNode.SelectNodes("//a") == null)
             {
                 return null;
             }
@@ -107,63 +133,63 @@ namespace WebSiteScrapper
                 }
                 return links;
             }
-        }
-            
+        }    
         public List<Urls> GetAllUrlsFromSite_v2()
         {
             //Helper just cleans the urls
-            this.cleanTable("urls");
+            this.CleanTable("urls");
 
-            //Step 1 Add the base url to the database and mark it as visited                        
-            GetTitle();
-            addUrlToDb(this.Urls.Url, true);
+            //Step 1 Add the base url to the database and mark it as visited                                    
+            AddUrlToDb(this.Urls.Url, _VISITED);
 
-            //Step 2 Get all the urls from the BasePage
-            List<HtmlNode>? links = GetLinks();
-
+            //Step 2 Get all the urls from the BasePage            
             //Step 3 Add the urls in the database
-            addUrlsToDb(links);
-            this.form.SetlabelValue("Initializing " + this.Urls.Url, calculateTotal().ToString(), calculateYetToVisit().ToString(), calculateVisited().ToString(), this.maxYetToVisit.ToString());
+            AddUrlsToDb(GetLinks());
+
+            UpdateControls();            
 
             //Step 4 Select the next url that has not been visited 
-            this.Urls = getNextUrlFromDb();
+            this.Urls = GetNextUrlFromDb();
 
 
             //Step 5 While there is an unvisited url
             while (this.Urls != null)
             {
-                //Step 5.1 Initialize the new url
-                this.Urls.Url = fixUrl(this.Urls.Url);
-                //Step 5.2 Get the page
-                GetHtmlPage();
-
-                if (!this.hasError)
+                if(this.paused == false)
                 {
-                    //Step 5.3 Get the title
-                    GetTitle();
+                    //Step 5.1 Initialize the new url
+                    this.Urls.Url = FixUrl(this.Urls.Url);
+
+                    if (!this.hasError)
+                    {
+                        //Step 5.2 Get the page
+                        GetPage();
+                        //Step 5.3 Get the title
+                        GetTitle();
+                    }
+
+                    this.hasError = false;
+                    //Step 5.4 Mark the visited url as visited
+                    UpdateUrlAsVisited(this.Urls.Id);
+                    //Step 5.5 Get all the unvisited link urls from the page and add them to the database
+                    this.refererUrl = this.Urls.Url;
+                    AddUrlsToDb(GetLinks());
+
+                    //Step 5.6 Get the next url from the database
+                    this.Urls = GetNextUrlFromDb();
+
+                    //Step 5.7 Update the counters
+                    UpdateControls();
+                    //this.form.SetlabelValue("Scraping on " + this.Urls.Url, calculateTotal().ToString(), calculateYetToVisit().ToString(), calculateVisited().ToString(), this.maxYetToVisit.ToString());
+
+                    //Step 5.8 go to step 5
                 }
-
-                this.hasError = false;
-                //Step 5.4 Mark the visited url as visited
-                updateUrlAsVisited(this.Urls.Id);
-                //Step 5.5 Get all the unvisited link urls from the page and add them to the database
-                addUrlsToDb(GetLinks());
-
-                //Step 5.6 Get the next url from the database
-                this.Urls = getNextUrlFromDb();
-
-                //Step 5.7 Update the counters
-                updateControls();
-                //this.form.SetlabelValue("Scraping on " + this.Urls.Url, calculateTotal().ToString(), calculateYetToVisit().ToString(), calculateVisited().ToString(), this.maxYetToVisit.ToString());
-
-                //Step 5.8 go to step 5
-
             }
 
 
             return this.GetAllDbUrls();
         }        
-        private void updateControls()
+        public void UpdateControls()
         {
             string message = "";
             if (this.Urls != null)
@@ -171,26 +197,10 @@ namespace WebSiteScrapper
             else
                 message = "finished scraping all urls";
 
-            this.form.SetlabelValue(message, calculateTotal().ToString(), calculateYetToVisit().ToString(), calculateVisited().ToString(), this.maxYetToVisit.ToString());
+            this.form.SetlabelValue(message, CalculateTotal().ToString(), CalculateYetToVisit().ToString(), CalculateVisited().ToString(), this.maxYetToVisit.ToString());
 
         }
-        private void updateUrlAsVisited(long id)
-        {                       
-            this.Context.ChangeTracker.Clear();
-            this.Urls.Baseurl = this.Urls.Url;
-            this.Urls.Date = DateTime.Now;
-            this.Urls.Hash = this.hashedPage;
-            this.Urls.Visited = true;
-
-            if (this.Urls != null)
-            {
-                this.Context.Update(this.Urls);
-                this.Context.SaveChanges();
-
-            }
-                       
-        }
-        private Urls getNextUrlFromDb()
+        public Urls GetNextUrlFromDb()
         {
             //WebSiteScrapperContext context = new WebSiteScrapperContext();
             var url = this.Context.Urls.Where(s => s.Visited == false)                                          
@@ -198,14 +208,14 @@ namespace WebSiteScrapper
 
             return url;
         }
-        private int calculateVisited()
+        public int CalculateVisited()
         {
             //WebSiteScrapperContext context = new WebSiteScrapperContext();
             var url = this.Context.Urls.Where(s => s.Visited == true).ToList();
 
             return url.Count();
         }
-        private int calculateYetToVisit()
+        public int CalculateYetToVisit()
         {
             //WebSiteScrapperContext context = new WebSiteScrapperContext();
             var url = this.Context.Urls.Where(s => s.Visited == false).ToList();
@@ -215,14 +225,14 @@ namespace WebSiteScrapper
 
             return url.Count();
         }
-        private int calculateTotal()
+        public int CalculateTotal()
         {
             //WebSiteScrapperContext context = new WebSiteScrapperContext();
             var url = this.Context.Urls.ToList();
 
             return url.Count();
         }
-        private void cleanTable(string tableName)
+        public void CleanTable(string tableName)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
             SqlConnection connection = new SqlConnection(connectionString);
@@ -241,21 +251,21 @@ namespace WebSiteScrapper
                 connection.Close();
             }
         }
-        private void addUrlsToDb(List<HtmlNode> links)
+        public void AddUrlsToDb(List<HtmlNode>? links)
         {
             if(links != null)
             {
                 foreach (var link in links)
                 {
-                    string _url = fixUrl(link.Attributes["href"].Value);
-                    if (!isInDb(_url) && isUrlInternal(_url))
+                    string _url = FixUrl(link.Attributes["href"].Value);
+                    if (!IsInDb(_url) && IsUrlInternal(_url))
                     {
-                        this.addUrlToDb(_url, false);
+                        this.AddUrlToDb(_url, _NOTVISITED);
                     }
                 }
             }            
         }
-        public Boolean isUrlInternal(string url)
+        public Boolean IsUrlInternal(string url)
         {
             if((url.ToLower().Replace("http://","").StartsWith(baseurl.Replace("http://", "")) 
                 || url.ToLower().Replace("https://", "").StartsWith(baseurl.Replace("https://", ""))) 
@@ -267,22 +277,22 @@ namespace WebSiteScrapper
 
             return false;
         }
-        public Boolean isInDb(string url)
+        public Boolean IsInDb(string url)
         {            
-            var lurl = this.Context.Urls.Where(s => s.Url == url)
-                        .FirstOrDefault();
-
+            Urls lurl = this.Context.Urls.Where(s => s.Url == url).FirstOrDefault();
             return lurl != null ? true : false;            
         }
-        private void addUrlToDb(string tmpUrl, Boolean visited)
+        public void AddUrlToDb(string tmpUrl, Boolean visited)
         {        
             this.Context.ChangeTracker.Clear();
             this.Urls.Id = 0;            
-            this.Urls.Baseurl = this.Urls.Url;
+            this.Urls.Baseurl = this.baseurl;
+
             this.Urls.Url = tmpUrl;
             this.Urls.Date = DateTime.Now;
-            this.Urls.Hash = this.hashedPage;
+            this.Urls.Hash = "";
             this.Urls.Visited = visited;
+            this.Urls.RefererUrl = this.refererUrl;
 
             if (this.Urls != null)
             {
@@ -291,6 +301,22 @@ namespace WebSiteScrapper
                 this.Context.SaveChanges();
             }
             
+        }
+        public void UpdateUrlAsVisited(long id)
+        {
+            this.Context.ChangeTracker.Clear();
+            //this.Urls.Baseurl = this.Urls.Url;
+            this.Urls.Date = DateTime.Now;
+            this.Urls.Hash = "";
+            this.Urls.Visited = true;
+
+            if (this.Urls != null)
+            {
+                this.Context.Update(this.Urls);
+                this.Context.SaveChanges();
+
+            }
+
         }
         public string HashString(string text, string salt = "")
         {
@@ -314,7 +340,7 @@ namespace WebSiteScrapper
                 return hash;
             }
         }
-        public void getUrlProtocol(string url)
+        public void GetUrlProtocol(string url)
         {
             if (baseurl.ToLower().StartsWith("https://"))
             {
@@ -328,7 +354,7 @@ namespace WebSiteScrapper
                 this.protocol = "";
             }
         }
-        public string fixUrl(string url)
+        public string FixUrl(string url)
         {
             string _url = url;
             if (url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://"))
@@ -379,7 +405,15 @@ namespace WebSiteScrapper
 
             return url;
         }
+        public void Pause()
+        {
+            this.paused = true;
+        }
 
-        
+        public void Start()
+        {
+            this.paused = false;
+        }
+
     }
 }

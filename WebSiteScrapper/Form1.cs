@@ -11,12 +11,15 @@ using WebSiteScrapper.Models;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebSiteScrapper
 {
     public partial class Form1 : Form
     {
         public Form self;
+        public Thread t;
+        public Scraper scraper;
         public Form1()
         {
             InitializeComponent();
@@ -27,17 +30,37 @@ namespace WebSiteScrapper
         private void button1_Click(object sender, EventArgs e)
         {
             button1.Enabled = false;
-            ThreadPool.QueueUserWorkItem(DoWork);         
-        }
-                
-        private void DoWork(object state)
-        {            
-            //url = "https://theotokatosfc.gr/";
-            url = "https://www.civiltech.gr/";              
+            button2.Enabled = true;
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
-            var scraper = new Scraper(url, this, _Context);            
-            List<Urls> urls = scraper.GetAllUrlsFromSite_v2();
+            url = "https://www.kipodomi-tools.gr/";
 
+            scraper = new Scraper(url, this, _Context);
+            t = new Thread(DoWork);
+            t.Start();            
+        }
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (scraper.paused == true)
+            {
+                MessageBox.Show("Resuming");
+                button2.Text = "Pause";
+                lblStatus.Text = "Resumed";
+                scraper.Start();
+            }
+            else
+            {                
+                MessageBox.Show("Pausing");
+                button2.Text = "Resume";
+                lblStatus.Text = "Paused";
+                scraper.Pause();
+            }                            
+            
+        }
+
+        private void DoWork(object state)
+        {                        
+            
+            List<Urls> urls = scraper.GetAllUrlsFromSite_v2();
             DataTable dt = CreateDataTable();
             foreach (Urls url in urls)
             {
@@ -64,6 +87,7 @@ namespace WebSiteScrapper
             table.Columns.Add("Id", typeof(int));
             table.Columns.Add("Url", typeof(string));
             table.Columns.Add("Title", typeof(string));
+            table.Columns.Add("Body", typeof(string));
             table.Columns.Add("Hash", typeof(string));
 
             return table;
@@ -117,5 +141,6 @@ namespace WebSiteScrapper
         }
         #endregion
 
+       
     }
 }

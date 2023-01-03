@@ -39,6 +39,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.lblMaxYetToVisit = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
+            this.lblStatus = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dgrView)).BeginInit();
             this.SuspendLayout();
             // 
@@ -58,11 +60,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgrView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgrView.Location = new System.Drawing.Point(2, 199);
+            this.dgrView.Location = new System.Drawing.Point(2, 219);
             this.dgrView.Name = "dgrView";
             this.dgrView.RowHeadersWidth = 51;
             this.dgrView.RowTemplate.Height = 29;
-            this.dgrView.Size = new System.Drawing.Size(1215, 435);
+            this.dgrView.Size = new System.Drawing.Size(1215, 415);
             this.dgrView.TabIndex = 1;
             // 
             // lblUrl
@@ -146,11 +148,33 @@
             this.lblMaxYetToVisit.TabIndex = 9;
             this.lblMaxYetToVisit.Text = "-";
             // 
+            // button2
+            // 
+            this.button2.Enabled = false;
+            this.button2.Location = new System.Drawing.Point(16, 175);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(94, 29);
+            this.button2.TabIndex = 11;
+            this.button2.Text = "Pause";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // lblStatus
+            // 
+            this.lblStatus.AutoSize = true;
+            this.lblStatus.Location = new System.Drawing.Point(132, 179);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(15, 20);
+            this.lblStatus.TabIndex = 12;
+            this.lblStatus.Text = "-";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1220, 637);
+            this.Controls.Add(this.lblStatus);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.lblMaxYetToVisit);
             this.Controls.Add(this.label3);
@@ -183,5 +207,7 @@
         private Label label3;
         private Label label4;
         private Label lblMaxYetToVisit;
+        private Button button2;
+        public Label lblStatus;
     }
 }

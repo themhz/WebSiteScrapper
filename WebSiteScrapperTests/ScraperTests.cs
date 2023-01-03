@@ -9,6 +9,7 @@ using WebSiteScrapper.Data;
 using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Policy;
+using Microsoft.VisualBasic;
 
 namespace WebSiteScrapper.Tests
 {
@@ -16,6 +17,38 @@ namespace WebSiteScrapper.Tests
     public class ScraperTests
     {
         private string appConfig = "Server=localhost;Database=WebSiteScrapper;User Id=NewSA;Password=Password@1234;TrustServerCertificate=True";
+
+        [TestMethod()]
+        public void NewScraperObject()
+        {
+            WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
+            Scraper urls = new Scraper("https://theotokatosfc.gr", null, _Context);
+            Assert.AreEqual("https://theotokatosfc.gr", urls.Urls.Url);
+            Assert.AreEqual("theotokatosfc &#8211; Σύλλογος Πυγμαχίας", urls.Urls.Title);
+            Assert.AreEqual(0, urls.Urls.Id);
+            Assert.AreEqual(null, urls.Urls.RefererUrl);
+            Assert.AreEqual("https://theotokatosfc.gr", urls.Urls.Baseurl);
+            Assert.AreEqual("https://theotokatosfc.gr", urls.baseurl);
+            Assert.AreEqual(null, urls.form);
+
+            //List<string> hashes = new List<string>();
+
+            //for(int i = 0; i < 5; i++)
+            //{
+            //    hashes.Add(urls.HashString(urls.GetHtmlPage("https://theotokatosfc.gr").Text.Trim()));
+            //}
+            //string string1 = urls.GetHtmlPage("https://theotokatosfc.gr").Text.Trim();
+            //string string2 = urls.GetHtmlPage("https://theotokatosfc.gr").Text.Trim();
+            //string string3 = urls.GetHtmlPage("https://theotokatosfc.gr").Text.Trim();
+            //string hash1 = urls.HashString(string1);
+            //string hash2 = urls.HashString(string2);
+            //string hash3 = urls.HashString(string3);
+            //string test = urls.GetHtmlPage("https://theotokatosfc.gr").Text.Trim();
+            //string test2 = test;
+
+            //Assert.AreEqual(urls.HashString(test2), urls.HashString(test));
+        }
+
         [TestMethod()]
         public void isUrlInternalTest()
         {
@@ -23,27 +56,40 @@ namespace WebSiteScrapper.Tests
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
             Scraper urls = new Scraper(url, null, _Context);
 
-            Assert.IsTrue(urls.isUrlInternal(url));
+            Assert.IsTrue(urls.IsUrlInternal(url));
 
             url = "theotokatosfc.gr";
-            Assert.IsTrue(urls.isUrlInternal(url));
+            Assert.IsTrue(urls.IsUrlInternal(url));
 
             url = "http://facebook.theotokatosfc.gr";
-            Assert.IsFalse(urls.isUrlInternal(url));
+            Assert.IsFalse(urls.IsUrlInternal(url));
         }
 
         [TestMethod()]
         public void isInDbTest()
         {
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
-            string url = "https://theotokatosfc.gr/";
+            string url = "https://theotokatosfc.gr";
             Scraper urls = new Scraper(url, null, _Context);
-            Assert.IsTrue(urls.isInDb(url));
+            Assert.IsTrue(urls.IsInDb(url));
 
 
             url = "https://theotokatosfc.gr/about/";
             urls = new Scraper(url, null, _Context);
-            Assert.IsTrue(urls.isInDb(url));
+            Assert.IsTrue(urls.IsInDb(url));
+        }
+        [TestMethod()]
+        public void isInDbTest2()
+        {
+            WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
+            string url = "https://theotokatosfc.gr/";
+            Scraper urls = new Scraper(url, null, _Context);
+            Assert.IsTrue(urls.IsInDb("https://theotokatosfc.gr"));
+
+
+            url = "https://theotokatosfc.gr/about/";
+            urls = new Scraper(url, null, _Context);
+            Assert.IsTrue(urls.IsInDb(url));
         }
 
         [TestMethod()]
@@ -52,7 +98,7 @@ namespace WebSiteScrapper.Tests
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
             string url = "https://theotokatosfc.gr/";
             Scraper urls = new Scraper(url, null, _Context);
-            Assert.IsTrue(urls.isUrlInternal(url));
+            Assert.IsTrue(urls.IsUrlInternal(url));
 
         }
         [TestMethod()]
@@ -61,7 +107,7 @@ namespace WebSiteScrapper.Tests
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
             string url = "https://theotokatosfc.gr";
             Scraper urls = new Scraper(url, null, _Context);
-            Assert.IsTrue(urls.isUrlInternal(url));
+            Assert.IsTrue(urls.IsUrlInternal(url));
         }
 
 
@@ -71,7 +117,7 @@ namespace WebSiteScrapper.Tests
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
             
             Scraper urls = new Scraper("https://theotokatosfc.gr", null, _Context);
-            Assert.AreEqual("https://theotokatosfc.gr", urls.fixUrl("https://theotokatosfc.gr/"));
+            Assert.AreEqual("https://theotokatosfc.gr", urls.FixUrl("https://theotokatosfc.gr/"));
         }
 
         [TestMethod()]
@@ -79,7 +125,7 @@ namespace WebSiteScrapper.Tests
         {
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);            
             Scraper urls = new Scraper("https://theotokatosfc.gr/", null, _Context);
-            Assert.AreEqual("https://theotokatosfc.gr", urls.fixUrl("https://theotokatosfc.gr/"));
+            Assert.AreEqual("https://theotokatosfc.gr", urls.FixUrl("https://theotokatosfc.gr/"));
         }
 
         [TestMethod()]
@@ -88,7 +134,7 @@ namespace WebSiteScrapper.Tests
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
             
             Scraper urls = new Scraper("https://theotokatosfc.gr/", null, _Context);
-            Assert.AreEqual("https://theotokatosfc.gr", urls.fixUrl("https://theotokatosfc.gr"));
+            Assert.AreEqual("https://theotokatosfc.gr", urls.FixUrl("https://theotokatosfc.gr"));
         }
 
         [TestMethod()]
@@ -96,7 +142,7 @@ namespace WebSiteScrapper.Tests
         {
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);            
             Scraper urls = new Scraper("https://theotokatosfc.gr", null, _Context);
-            Assert.AreEqual("https://theotokatosfc.gr", urls.fixUrl("https://theotokatosfc.gr"));
+            Assert.AreEqual("https://theotokatosfc.gr", urls.FixUrl("https://theotokatosfc.gr"));
         }
 
 
@@ -105,7 +151,7 @@ namespace WebSiteScrapper.Tests
         {
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);            
             Scraper urls = new Scraper("https://theotokatosfc.gr", null, _Context);
-            Assert.AreEqual("https://theotokatosfc.gr/?add-to-cart=5826", urls.fixUrl("?add-to-cart=5826"));
+            Assert.AreEqual("https://theotokatosfc.gr/?add-to-cart=5826", urls.FixUrl("?add-to-cart=5826"));
         }
 
 
@@ -114,7 +160,7 @@ namespace WebSiteScrapper.Tests
         {
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
             Scraper urls = new Scraper("https://theotokatosfc.gr", null, _Context);
-            Assert.AreEqual("https://theotokatosfc.gr/programs/kids-karate-groups", urls.fixUrl("https://theotokatosfc.gr/programs/kids-karate-groups/"));
+            Assert.AreEqual("https://theotokatosfc.gr/programs/kids-karate-groups", urls.FixUrl("https://theotokatosfc.gr/programs/kids-karate-groups/"));
         }
 
         [TestMethod()]
@@ -122,10 +168,10 @@ namespace WebSiteScrapper.Tests
         {
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
             Scraper urls = new Scraper("https://theotokatosfc.gr", null, _Context);
-            Assert.AreEqual("https://theotokatosfc.gr", urls.fixUrl(" "));
-            Assert.AreEqual("https://theotokatosfc.gr", urls.fixUrl("  "));
-            Assert.AreEqual("https://theotokatosfc.gr", urls.fixUrl(""));
-            Assert.AreEqual("https://theotokatosfc.gr", urls.fixUrl("   "));
+            Assert.AreEqual("https://theotokatosfc.gr", urls.FixUrl(" "));
+            Assert.AreEqual("https://theotokatosfc.gr", urls.FixUrl("  "));
+            Assert.AreEqual("https://theotokatosfc.gr", urls.FixUrl(""));
+            Assert.AreEqual("https://theotokatosfc.gr", urls.FixUrl("   "));
         }
 
         [TestMethod()]
@@ -133,7 +179,9 @@ namespace WebSiteScrapper.Tests
         {
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
             Scraper urls = new Scraper("https://theotokatosfc.gr", null, _Context);            
-            Assert.AreEqual("https://theotokatosfc.gr/index.php/contacts", urls.fixUrl("index.php/contacts"));
+            Assert.AreEqual("https://theotokatosfc.gr/index.php/contacts", urls.FixUrl("index.php/contacts"));
         }
+
+
     }
 }

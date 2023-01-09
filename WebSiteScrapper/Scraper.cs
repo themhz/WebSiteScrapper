@@ -22,6 +22,8 @@ using System.ComponentModel;
 using System.Reflection.Metadata;
 using System.IO.Compression;
 using System.Net.Http;
+using System.DirectoryServices.ActiveDirectory;
+using System.Linq.Expressions;
 
 namespace WebSiteScrapper
 {
@@ -51,9 +53,10 @@ namespace WebSiteScrapper
             this.form = _form;
 
             this.Urls = new Urls();
-            this.Urls.Url = FixUrl(url);
+            this.Urls.Url = GetAbsoluteUrlString(url, "");
             this.baseurl = this.Urls.Url;
             this.Urls.Baseurl = this.Urls.Url;
+            this.refererUrl = this.Urls.Url;
             this.HtmlPage = this.GetPage();
             this.GetTitle();            
             this.GetLinks();
@@ -158,7 +161,9 @@ namespace WebSiteScrapper
                 if(this.paused == false)
                 {
                     //Step 5.1 Initialize the new url
-                    this.Urls.Url = FixUrl(this.Urls.Url);
+                    //this.Urls.Url = FixUrl(this.Urls.Url);
+                    this.Urls.Url = GetAbsoluteUrlString(this.refererUrl, this.Urls.Url);
+                    
 
                     if (!this.hasError)
                     {
@@ -257,7 +262,8 @@ namespace WebSiteScrapper
             {
                 foreach (var link in links)
                 {
-                    string _url = FixUrl(link.Attributes["href"].Value);
+                    //string _url = FixUrl(link.Attributes["href"].Value);
+                    string _url = GetAbsoluteUrlString(this.refererUrl, link.Attributes["href"].Value);
                     if (!IsInDb(_url) && IsUrlInternal(_url))
                     {
                         this.AddUrlToDb(_url, _NOTVISITED);
@@ -265,12 +271,28 @@ namespace WebSiteScrapper
                 }
             }            
         }
+
+        public Boolean IsUrlInternal_V2(string url)
+        {
+            bool match = false;
+            try
+            {
+                var uri = new Uri(url);
+                var uri2 = new Uri(this.baseurl);
+                match = uri.Host.Equals(uri2.Host, StringComparison.InvariantCultureIgnoreCase);
+            }
+            catch(Exception ex)
+            {
+
+            }
+            
+
+
+            return match;
+        }
         public Boolean IsUrlInternal(string url)
         {
-            if((url.ToLower().Replace("http://","").StartsWith(baseurl.Replace("http://", "")) 
-                || url.ToLower().Replace("https://", "").StartsWith(baseurl.Replace("https://", ""))) 
-                || !(url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://"))
-                )
+            if((this.IsUrlInternal_V2(url)) || !(url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://")))
             {
                 return true;
             }
@@ -397,6 +419,14 @@ namespace WebSiteScrapper
             }
 
             return _url;                                                                   
+        }
+
+        public string GetAbsoluteUrlString(string baseUrl, string url)
+        {
+            var uri = new Uri(url, UriKind.RelativeOrAbsolute);
+            if (!uri.IsAbsoluteUri)
+                uri = new Uri(new Uri(baseUrl), uri);
+            return uri.ToString();
         }
         public List<Urls> GetAllDbUrls()
         {

@@ -30,27 +30,68 @@ namespace WebSiteScrapper.Classes
 {
     public class Hive
     {
-        //public string? protocol;
-        //public string? baseurl;
-        //public string? refererUrl;
-        //public Urls Urls;
-        //public HtmlDocument? HtmlPage;
-        //public string? hashedPage;
-        //public Form1 form;
-        //public int totalLinks = 0;
-        //public int linksVisited = 0;
-        //public int linksYetToVisit = 0;
-        //public int maxYetToVisit = 0;
-        //public bool hasError = false;
-        //public WebSiteScrapperContext Context;
-        //public const bool _VISITED = true;
-        //public bool _NOTVISITED = false;
-        //public bool paused = false;
+        public string? protocol;
+        public string? baseurl;
+        public string? refererUrl;
+        public Urls Urls;
+        public HtmlDocument? HtmlPage;
+        public string? hashedPage;
+        public Form1 form;
+        public int totalLinks = 0;
+        public int linksVisited = 0;
+        public int linksYetToVisit = 0;
+        public int maxYetToVisit = 0;
+        public bool hasError = false;
+        public WebSiteScrapperContext Context;
+        public const bool _VISITED = true;
+        public bool _NOTVISITED = false;
+        public bool paused = false;
 
-        //public Hive(WebSiteScrapperContext _Context)
-        //{
-        //    Context = _Context;
-        //}
+        public Hive(WebSiteScrapperContext _Context)
+        {
+            Context = _Context;
+            
+        }
+
+        public void AddUrlsToDb(List<Tuple<string?, string?, string?>> urls)
+        {
+            if (urls != null)
+            {
+                foreach (var url in urls)
+                {
+                    
+                    AddUrlToDb(url, _NOTVISITED);                    
+                }
+            }
+        }
+
+        public void AddUrlToDb(Tuple<string?, string?, string?> url, bool visited)
+        {
+            Context.ChangeTracker.Clear();
+            Urls = new Urls();
+            Urls.Id = 0;
+            Urls.Baseurl = url.Item1;
+            Urls.Url = url.Item3;
+            Urls.Date = DateTime.Now;
+            Urls.Hash = "";
+            Urls.Visited = visited;
+            Urls.RefererUrl = url.Item1;
+
+            if (Urls != null)
+            {
+                Context.Add(Urls);
+                Context.SaveChanges();
+            }
+        }
+        public Urls GetNextUrlFromDb()
+        {
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
+            var url = Context.Urls.Where(s => s.Visited == false)
+                        .FirstOrDefault();
+
+            return url;
+        }
+
         //public void UpdateControls()
         //{
         //    string message = "";
@@ -62,158 +103,121 @@ namespace WebSiteScrapper.Classes
         //    form.SetlabelValue(message, CalculateTotal().ToString(), CalculateYetToVisit().ToString(), CalculateVisited().ToString(), maxYetToVisit.ToString());
 
         //}
-        //public Urls GetNextUrlFromDb()
-        //{
-        //    //WebSiteScrapperContext context = new WebSiteScrapperContext();
-        //    var url = Context.Urls.Where(s => s.Visited == false)
-        //                .FirstOrDefault();
 
-        //    return url;
-        //}
-        //public int CalculateVisited()
-        //{
-        //    //WebSiteScrapperContext context = new WebSiteScrapperContext();
-        //    var url = Context.Urls.Where(s => s.Visited == true).ToList();
+        public int CalculateVisited()
+        {
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
+            var url = Context.Urls.Where(s => s.Visited == true).ToList();
 
-        //    return url.Count();
-        //}
-        //public int CalculateYetToVisit()
-        //{
-        //    //WebSiteScrapperContext context = new WebSiteScrapperContext();
-        //    var url = Context.Urls.Where(s => s.Visited == false).ToList();
+            return url.Count();
+        }
+        public int CalculateYetToVisit()
+        {
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
+            var url = Context.Urls.Where(s => s.Visited == false).ToList();
 
-        //    if (maxYetToVisit < url.Count())
-        //        maxYetToVisit = url.Count();
+            if (maxYetToVisit < url.Count())
+                maxYetToVisit = url.Count();
 
-        //    return url.Count();
-        //}
-        //public int CalculateTotal()
-        //{
-        //    //WebSiteScrapperContext context = new WebSiteScrapperContext();
-        //    var url = Context.Urls.ToList();
+            return url.Count();
+        }
+        public int CalculateTotal()
+        {
+            //WebSiteScrapperContext context = new WebSiteScrapperContext();
+            var url = Context.Urls.ToList();
 
-        //    return url.Count();
-        //}
-        //public void CleanTable(string tableName)
-        //{
-        //    string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
-        //    SqlConnection connection = new SqlConnection(connectionString);
-        //    string sqlStatement = "DELETE FROM " + tableName;
+            return url.Count();
+        }
+        public void DeleteTableRows(string tableName)
+        {
+            string connectionString = Context.getConnectionString();
+            SqlConnection connection = new SqlConnection(connectionString);
+            string sqlStatement = "DELETE FROM " + tableName;
 
-        //    try
-        //    {
-        //        connection.Open();
-        //        SqlCommand cmd = new SqlCommand(sqlStatement, connection);
-        //        cmd.CommandType = CommandType.Text;
-        //        cmd.ExecuteNonQuery();
+            try
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(sqlStatement, connection);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
 
-        //    }
-        //    finally
-        //    {
-        //        connection.Close();
-        //    }
-        //}
-
-        //public void AddUrlsToDb(List<HtmlNode>? links)
-        //{
-        //    if (links != null)
-        //    {
-        //        foreach (var link in links)
-        //        {
-        //            //string _url = FixUrl(link.Attributes["href"].Value);
-        //            string _url = GetAbsoluteUrlString(refererUrl, link.Attributes["href"].Value);
-        //            if (!IsInDb(_url) && IsUrlInternal(_url))
-        //            {
-        //                AddUrlToDb(_url, _NOTVISITED);
-        //            }
-        //        }
-        //    }
-        //}
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
 
 
-        //public bool IsInDb(string url)
-        //{
-        //    Urls lurl = Context.Urls.Where(s => s.Url == url).FirstOrDefault();
-        //    return lurl != null ? true : false;
-        //}
-        //public void AddUrlToDb(string tmpUrl, bool visited)
-        //{
-        //    Context.ChangeTracker.Clear();
-        //    Urls.Id = 0;
-        //    Urls.Baseurl = baseurl;
+        public void TruncateTable(string tableName)
+        {
+            string connectionString = Context.getConnectionString();
+            SqlConnection connection = new SqlConnection(connectionString);
+            string sqlStatement = "Truncate table " + tableName;
 
-        //    Urls.Url = tmpUrl;
-        //    Urls.Date = DateTime.Now;
-        //    Urls.Hash = "";
-        //    Urls.Visited = visited;
-        //    Urls.RefererUrl = refererUrl;
+            try
+            {
+                connection.Open();
+                SqlCommand cmd = new SqlCommand(sqlStatement, connection);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
 
-        //    if (Urls != null)
-        //    {
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
 
-        //        Context.Add(Urls);
-        //        Context.SaveChanges();
-        //    }
+        public bool IsInDb(string url)
+        {
+            Urls? lurl = Context.Urls.Where(s => s.Url == url).FirstOrDefault();
+            return lurl != null ? true : false;
+        }
 
-        //}
-        //public void UpdateUrlAsVisited(long id)
-        //{
-        //    Context.ChangeTracker.Clear();
-        //    //this.Urls.Baseurl = this.Urls.Url;
-        //    Urls.Date = DateTime.Now;
-        //    Urls.Hash = "";
-        //    Urls.Visited = true;
+        public void UpdateUrlAsVisited(long id)
+        {
+            Context.ChangeTracker.Clear();
+            Urls = Context.Urls.Find(id);
+            
 
-        //    if (Urls != null)
-        //    {
-        //        Context.Update(Urls);
-        //        Context.SaveChanges();
+            if (Urls != null)
+            {
+                Urls.Visited = true;
+                Context.Update(Urls);
+                Context.SaveChanges();
 
-        //    }
+            }
 
-        //}
-        //public string HashString(string text, string salt = "")
-        //{
-        //    if (string.IsNullOrEmpty(text))
-        //    {
-        //        return string.Empty;
-        //    }
+        }
+        public string HashString(string text, string salt = "")
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
 
-        //    // Uses SHA256 to create the hash
-        //    using (var sha = new System.Security.Cryptography.SHA256Managed())
-        //    {
-        //        // Convert the string to a byte array first, to be processed
-        //        byte[] textBytes = Encoding.UTF8.GetBytes(text + salt);
-        //        byte[] hashBytes = sha.ComputeHash(textBytes);
+            // Uses SHA256 to create the hash
+            using (var sha = new System.Security.Cryptography.SHA256Managed())
+            {
+                // Convert the string to a byte array first, to be processed
+                byte[] textBytes = Encoding.UTF8.GetBytes(text + salt);
+                byte[] hashBytes = sha.ComputeHash(textBytes);
 
-        //        // Convert back to a string, removing the '-' that BitConverter adds
-        //        string hash = BitConverter
-        //            .ToString(hashBytes)
-        //            .Replace("-", string.Empty);
+                // Convert back to a string, removing the '-' that BitConverter adds
+                string hash = BitConverter
+                    .ToString(hashBytes)
+                    .Replace("-", string.Empty);
 
-        //        return hash;
-        //    }
-        //}
-        //public void GetUrlProtocol(string url)
-        //{
-        //    if (baseurl.ToLower().StartsWith("https://"))
-        //    {
-        //        protocol = "https";
-        //    }
-        //    else if (baseurl.ToLower().StartsWith("http://"))
-        //    {
-        //        protocol = "http";
-        //    }
-        //    else
-        //    {
-        //        protocol = "";
-        //    }
-        //}
+                return hash;
+            }
+        }
+
 
         //public List<Urls> GetAllUrlsFromSite_v2()
         //{
         //    //Helper just cleans the urls
-        //    CleanTable("urls");
+        //    DeleteTableRows("urls");
 
         //    //Step 1 Add the base url to the database and mark it as visited                                    
         //    AddUrlToDb(Urls.Url, _VISITED);
@@ -267,20 +271,21 @@ namespace WebSiteScrapper.Classes
 
         //    return GetAllDbUrls();
         //}
-        //public List<Urls> GetAllDbUrls()
-        //{
-        //    //WebSiteScrapperContext context = new WebSiteScrapperContext();
-        //    var url = Context.Urls.ToList();
+        public List<Urls> GetAllDbUrls()
+        {
+            Context.ChangeTracker.Clear();
+            var url = Context.Urls.ToList();
+            
 
-        //    return url;
-        //}
-        //public void Pause()
-        //{
-        //    paused = true;
-        //}
-        //public void Start()
-        //{
-        //    paused = false;
-        //}
+            return url;
+        }
+        public void Pause()
+        {
+            paused = true;
+        }
+        public void Start()
+        {
+            paused = false;
+        }
     }
 }

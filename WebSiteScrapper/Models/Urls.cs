@@ -17,11 +17,11 @@ namespace WebSiteScrapper.Models
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             [Key, Column(Order = 0)] 
             public Int64 Id { get; set; }
-            public string Title { get; set; }
-            public string Page { get; set; }            
-            public string Url { get; set; }
+            public string? Title { get; set; }
+            public string? Page { get; set; }            
+            public string? Url { get; set; }
             public string? RefererUrl { get; set; }
-            public string Baseurl { get; set; }            
+            public string? Baseurl { get; set; }            
             public string? Hash { get; set; }            
             public DateTime Date { get; set; }            
             public  Boolean Visited { get; set; }            

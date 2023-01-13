@@ -21,5 +21,10 @@ namespace WebSiteScrapper.Data
         {         
             optionsBuilder.UseSqlServer(this.ConnectionString);
         }
+
+        public string getConnectionString()
+        {
+            return this.ConnectionString;
+        }
     }
 }

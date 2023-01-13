@@ -196,7 +196,6 @@ namespace WebSiteScrapper.Tests
         }
 
         #endregion
-
         #region TestIsUrlInternal            
             [TestMethod()]
             public void IsUrlInternal_OnDomain_True()
@@ -239,7 +238,8 @@ namespace WebSiteScrapper.Tests
                 isInternal = s.IsUrlInternal("https://www.civiltech.gr", "https://facebook.com");
                 Assert.IsFalse(isInternal);
             }
-            #endregion
+        #endregion
 
+       
     }
 }

@@ -48,42 +48,7 @@ namespace WebSiteScrapper.Classes
 
             return HtmlDocument;
         }
-        public string? GetPageAsString(string uri)
-        {
-            string? response = Task.Run(async () =>
-            {
-                var client = new HttpClient();
-                try
-                {
-                    var response = await client.GetAsync(uri);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return await response.Content.ReadAsStringAsync();
-                    }
-                    return null;
-                }
-                catch (Exception ex)
-                {
-                    return null;
-                }
-
-            }).GetAwaiter().GetResult();
-            return response;
-        }
-        public string? GetTitle()
-        {
-            if (this.Title != null)
-            {
-                return this.Title;
-            }
-            else if (this.HtmlDocument != null && this.HtmlDocument.DocumentNode.SelectSingleNode("//title") != null)
-            {
-                this.Title = this.HtmlDocument.DocumentNode.SelectSingleNode("//title").InnerText.ToString();
-            }
-
-            return this.Title;
-        }
-        public List<Tuple<string?, string?, string?>>? GetLinksAsTuples(int internalLinks=0)
+        public List<Tuple<string?, string?, string?>>? GetLinksAsTuples(int internalLinks = 0)
         {
             this.Links = new List<Tuple<string?, string?, string?>>();
             if (HtmlDocument == null)
@@ -100,14 +65,14 @@ namespace WebSiteScrapper.Classes
                 {
                     if (element.Attributes.Contains("href"))
                     {
-                        if(internalLinks == 1)
+                        if (internalLinks == 1)
                         {
                             if (IsUrlInternal(Url, GetAbsoluteUrlString(Url, element.Attributes["href"].Value)))
                             {
                                 Links.Add((new Tuple<string?, string?, string?>(Url, element.Attributes["href"].Value, GetAbsoluteUrlString(Url, element.Attributes["href"].Value))));
                             }
                         }
-                        else if(internalLinks == 2)
+                        else if (internalLinks == 2)
                         {
                             if (!IsUrlInternal(Url, GetAbsoluteUrlString(Url, element.Attributes["href"].Value)))
                             {
@@ -148,6 +113,41 @@ namespace WebSiteScrapper.Classes
                 return Links;
             }
         }
+        public string? GetPageAsString(string uri)
+        {
+            string? response = Task.Run(async () =>
+            {
+                var client = new HttpClient();
+                try
+                {
+                    var response = await client.GetAsync(uri);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return await response.Content.ReadAsStringAsync();
+                    }
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+
+            }).GetAwaiter().GetResult();
+            return response;
+        }
+        public string? GetTitle()
+        {
+            if (this.Title != null)
+            {
+                return this.Title;
+            }
+            else if (this.HtmlDocument != null && this.HtmlDocument.DocumentNode.SelectSingleNode("//title") != null)
+            {
+                this.Title = this.HtmlDocument.DocumentNode.SelectSingleNode("//title").InnerText.ToString();
+            }
+
+            return this.Title;
+        }        
         public string GetAbsoluteUrlString(string baseUrl, string url)
         {
             var uri = new Uri(url, UriKind.RelativeOrAbsolute);

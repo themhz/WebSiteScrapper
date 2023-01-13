@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Data;
 
-namespace WebSiteScrapper
+namespace WebSiteScrapper.Classes
 {
     public class SqlHandler
     {
@@ -44,5 +44,8 @@ namespace WebSiteScrapper
         {
 
         }
+
+
+
     }
 }

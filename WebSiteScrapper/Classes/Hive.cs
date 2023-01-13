@@ -28,91 +28,92 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace WebSiteScrapper.Classes
 {
-    internal class Scrapper
+    public class Hive
     {
-        public string? protocol;
-        public string? baseurl;
-        public string? refererUrl;
-        public Urls Urls;
-        public HtmlDocument? HtmlPage;
-        public string? hashedPage;
-        public Form1 form;
-        public int totalLinks = 0;
-        public int linksVisited = 0;
-        public int linksYetToVisit = 0;
-        public int maxYetToVisit = 0;
-        public bool hasError = false;
-        public WebSiteScrapperContext Context;
-        public const bool _VISITED = true;
-        public bool _NOTVISITED = false;
-        public bool paused = false;
+        //public string? protocol;
+        //public string? baseurl;
+        //public string? refererUrl;
+        //public Urls Urls;
+        //public HtmlDocument? HtmlPage;
+        //public string? hashedPage;
+        //public Form1 form;
+        //public int totalLinks = 0;
+        //public int linksVisited = 0;
+        //public int linksYetToVisit = 0;
+        //public int maxYetToVisit = 0;
+        //public bool hasError = false;
+        //public WebSiteScrapperContext Context;
+        //public const bool _VISITED = true;
+        //public bool _NOTVISITED = false;
+        //public bool paused = false;
 
-        public Scrapper(WebSiteScrapperContext _Context)
-        {
-            Context = _Context;
-        }
-        public void UpdateControls()
-        {
-            string message = "";
-            if (Urls != null)
-                message = "Scraping on " + Urls.Url;
-            else
-                message = "finished scraping all urls";
+        //public Hive(WebSiteScrapperContext _Context)
+        //{
+        //    Context = _Context;
+        //}
+        //public void UpdateControls()
+        //{
+        //    string message = "";
+        //    if (Urls != null)
+        //        message = "Scraping on " + Urls.Url;
+        //    else
+        //        message = "finished scraping all urls";
 
-            form.SetlabelValue(message, CalculateTotal().ToString(), CalculateYetToVisit().ToString(), CalculateVisited().ToString(), maxYetToVisit.ToString());
+        //    form.SetlabelValue(message, CalculateTotal().ToString(), CalculateYetToVisit().ToString(), CalculateVisited().ToString(), maxYetToVisit.ToString());
 
-        }
-        public Urls GetNextUrlFromDb()
-        {
-            //WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var url = Context.Urls.Where(s => s.Visited == false)
-                        .FirstOrDefault();
+        //}
+        //public Urls GetNextUrlFromDb()
+        //{
+        //    //WebSiteScrapperContext context = new WebSiteScrapperContext();
+        //    var url = Context.Urls.Where(s => s.Visited == false)
+        //                .FirstOrDefault();
 
-            return url;
-        }
-        public int CalculateVisited()
-        {
-            //WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var url = Context.Urls.Where(s => s.Visited == true).ToList();
+        //    return url;
+        //}
+        //public int CalculateVisited()
+        //{
+        //    //WebSiteScrapperContext context = new WebSiteScrapperContext();
+        //    var url = Context.Urls.Where(s => s.Visited == true).ToList();
 
-            return url.Count();
-        }
-        public int CalculateYetToVisit()
-        {
-            //WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var url = Context.Urls.Where(s => s.Visited == false).ToList();
+        //    return url.Count();
+        //}
+        //public int CalculateYetToVisit()
+        //{
+        //    //WebSiteScrapperContext context = new WebSiteScrapperContext();
+        //    var url = Context.Urls.Where(s => s.Visited == false).ToList();
 
-            if (maxYetToVisit < url.Count())
-                maxYetToVisit = url.Count();
+        //    if (maxYetToVisit < url.Count())
+        //        maxYetToVisit = url.Count();
 
-            return url.Count();
-        }
-        public int CalculateTotal()
-        {
-            //WebSiteScrapperContext context = new WebSiteScrapperContext();
-            var url = Context.Urls.ToList();
+        //    return url.Count();
+        //}
+        //public int CalculateTotal()
+        //{
+        //    //WebSiteScrapperContext context = new WebSiteScrapperContext();
+        //    var url = Context.Urls.ToList();
 
-            return url.Count();
-        }
-        public void CleanTable(string tableName)
-        {
-            string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
-            SqlConnection connection = new SqlConnection(connectionString);
-            string sqlStatement = "DELETE FROM " + tableName;
+        //    return url.Count();
+        //}
+        //public void CleanTable(string tableName)
+        //{
+        //    string connectionString = ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString;
+        //    SqlConnection connection = new SqlConnection(connectionString);
+        //    string sqlStatement = "DELETE FROM " + tableName;
 
-            try
-            {
-                connection.Open();
-                SqlCommand cmd = new SqlCommand(sqlStatement, connection);
-                cmd.CommandType = CommandType.Text;
-                cmd.ExecuteNonQuery();
+        //    try
+        //    {
+        //        connection.Open();
+        //        SqlCommand cmd = new SqlCommand(sqlStatement, connection);
+        //        cmd.CommandType = CommandType.Text;
+        //        cmd.ExecuteNonQuery();
 
-            }
-            finally
-            {
-                connection.Close();
-            }
-        }
+        //    }
+        //    finally
+        //    {
+        //        connection.Close();
+        //    }
+        //}
+
         //public void AddUrlsToDb(List<HtmlNode>? links)
         //{
         //    if (links != null)
@@ -128,16 +129,8 @@ namespace WebSiteScrapper.Classes
         //        }
         //    }
         //}
-       
-        //public bool IsUrlInternal(string url)
-        //{
-        //    if (IsUrlInternal_V2(url) || !(url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://")))
-        //    {
-        //        return true;
-        //    }
 
-        //    return false;
-        //}
+
         //public bool IsInDb(string url)
         //{
         //    Urls lurl = Context.Urls.Where(s => s.Url == url).FirstOrDefault();

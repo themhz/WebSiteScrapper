@@ -21,15 +21,15 @@ namespace WebSiteScrapper.Classes
         public string? Title;
         public List<Tuple<string?, string?, string?>>? Links; //BaseUrl,OriginalUrl,ParsedUrl
         public List<Tuple<string?, string?, string?>>? Images; //BaseUrl,OriginalUrl,ParsedUrl        
-        public HtmlDocument HtmlDocument;       
+        public HtmlDocument HtmlDocument;
         public Spider()
         {
-            this.HtmlDocument = new HtmlDocument();            
+            this.HtmlDocument = new HtmlDocument();
         }
         public Spider(string url)
         {
             this.Url = url;
-            this.HtmlDocument = new HtmlDocument();            
+            this.HtmlDocument = new HtmlDocument();
             this.GetPageAsHtmlDocument(url);
         }
         public HtmlDocument? GetPageAsHtmlDocument(string uri)
@@ -62,31 +62,31 @@ namespace WebSiteScrapper.Classes
                     }
                     return null;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     return null;
                 }
-                
+
             }).GetAwaiter().GetResult();
             return response;
-        }        
+        }
         public string? GetTitle()
         {
             if (this.Title != null)
             {
                 return this.Title;
             }
-            else if (this.HtmlDocument != null && this.HtmlDocument.DocumentNode.SelectSingleNode("//Title") != null)
+            else if (this.HtmlDocument != null && this.HtmlDocument.DocumentNode.SelectSingleNode("//title") != null)
             {
-                this.Title = this.HtmlDocument.DocumentNode.SelectSingleNode("//Title").InnerText.ToString();
+                this.Title = this.HtmlDocument.DocumentNode.SelectSingleNode("//title").InnerText.ToString();
             }
 
             return this.Title;
         }
-        public List<Tuple<string?, string?, string?>>? GetLinksAsTuples()
+        public List<Tuple<string?, string?, string?>>? GetLinksAsTuples(int internalLinks=0)
         {
             this.Links = new List<Tuple<string?, string?, string?>>();
-            if(HtmlDocument == null)
+            if (HtmlDocument == null)
             {
                 return null;
             }
@@ -95,16 +95,35 @@ namespace WebSiteScrapper.Classes
                 return null;
             }
             else
-            {                
+            {
                 foreach (var element in HtmlDocument.DocumentNode.SelectNodes("//a"))
                 {
                     if (element.Attributes.Contains("href"))
                     {
-                        Links.Add((new Tuple<string?, string?, string?>(Url, element.Attributes["href"].Value, GetAbsoluteUrlString(Url, element.Attributes["href"].Value))));
+                        if(internalLinks == 1)
+                        {
+                            if (IsUrlInternal(Url, GetAbsoluteUrlString(Url, element.Attributes["href"].Value)))
+                            {
+                                Links.Add((new Tuple<string?, string?, string?>(Url, element.Attributes["href"].Value, GetAbsoluteUrlString(Url, element.Attributes["href"].Value))));
+                            }
+                        }
+                        else if(internalLinks == 2)
+                        {
+                            if (!IsUrlInternal(Url, GetAbsoluteUrlString(Url, element.Attributes["href"].Value)))
+                            {
+                                Links.Add((new Tuple<string?, string?, string?>(Url, element.Attributes["href"].Value, GetAbsoluteUrlString(Url, element.Attributes["href"].Value))));
+                            }
+                        }
+                        else
+                        {
+                            Links.Add((new Tuple<string?, string?, string?>(Url, element.Attributes["href"].Value, GetAbsoluteUrlString(Url, element.Attributes["href"].Value))));
+                        }
+
+
                     }
                 }
                 return Links;
-            }            
+            }
         }
         public List<Tuple<string?, string?, string?>>? GetImagesAsTuples()
         {
@@ -135,6 +154,24 @@ namespace WebSiteScrapper.Classes
             if (!uri.IsAbsoluteUri)
                 uri = new Uri(new Uri(baseUrl), uri);
             return uri.ToString();
-        }                
+        }
+        public bool IsUrlInternal(string? baseUrl, string? url)
+        {
+            bool match = false;
+            try
+            {
+                var uri = new Uri(this.GetAbsoluteUrlString(baseUrl, url));
+                var uri2 = new Uri(baseUrl);
+                match = uri.Host.Equals(uri2.Host, StringComparison.InvariantCultureIgnoreCase);
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
+
+            return match;
+        }
     }
 }

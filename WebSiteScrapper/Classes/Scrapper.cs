@@ -128,24 +128,7 @@ namespace WebSiteScrapper.Classes
         //        }
         //    }
         //}
-        //public bool IsUrlInternal_V2(string url)
-        //{
-        //    bool match = false;
-        //    try
-        //    {
-        //        var uri = new Uri(url);
-        //        var uri2 = new Uri(baseurl);
-        //        match = uri.Host.Equals(uri2.Host, StringComparison.InvariantCultureIgnoreCase);
-        //    }
-        //    catch (Exception ex)
-        //    {
-
-        //    }
-
-
-
-        //    return match;
-        //}
+       
         //public bool IsUrlInternal(string url)
         //{
         //    if (IsUrlInternal_V2(url) || !(url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://")))

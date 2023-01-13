@@ -124,6 +124,54 @@ namespace WebSiteScrapper.Tests
             Assert.IsNotNull(links);           
         }
 
+
+        [TestMethod()]
+        public void GetLinksAsTuples_InternalOnly()
+        {
+            Spider s = new Spider("https://www.civiltech.gr");
+            List<Tuple<string?, string?, string?>>? links = s.GetLinksAsTuples(1);
+            
+            foreach(Tuple<string?, string?, string?> t in links)
+            {
+                Assert.IsTrue(s.IsUrlInternal(s.Url,t.Item3));
+            }
+            
+        }
+
+        [TestMethod()]
+        public void GetLinksAsTuples_ExternalOnly()
+        {
+            Spider s = new Spider("https://www.civiltech.gr");
+            List<Tuple<string?, string?, string?>>? links = s.GetLinksAsTuples(2);
+
+            foreach (Tuple<string?, string?, string?> t in links)
+            {
+                Assert.IsTrue(!s.IsUrlInternal(s.Url, t.Item3));
+            }
+
+        }
+
+        [TestMethod()]
+        public void GetLinksAsTuples_All()
+        {
+            Spider s = new Spider("https://www.civiltech.gr");
+            List<Tuple<string?, string?, string?>>? links = s.GetLinksAsTuples(0);
+
+            foreach (Tuple<string?, string?, string?> t in links)
+            {
+                if (s.IsUrlInternal(s.Url, t.Item3))
+                {
+                    Assert.IsTrue(s.IsUrlInternal(s.Url, t.Item3));
+                }
+                else
+                {
+                    Assert.IsFalse(s.IsUrlInternal(s.Url, t.Item3));
+                }
+                
+            }
+
+        }
+
         #endregion
         #region TestGetImages
 
@@ -149,6 +197,49 @@ namespace WebSiteScrapper.Tests
 
         #endregion
 
+        #region TestIsUrlInternal            
+            [TestMethod()]
+            public void IsUrlInternal_OnDomain_True()
+            {
+                Spider s = new Spider("https://www.civiltech.gr");
+                bool isInternal = s.IsUrlInternal("https://www.civiltech.gr", "dfdsfdsf");
+                Assert.IsTrue(isInternal);
+            }
+
+            [TestMethod()]
+            public void IsUrlInternal_OnSubDomain_True()
+            {
+                Spider s = new Spider("https://www.civiltech.gr/asdsadsa");
+                bool isInternal = s.IsUrlInternal("https://www.civiltech.gr", "dfdsfdsf");
+                Assert.IsTrue(isInternal);
+            }
+
+            [TestMethod()]
+            public void IsUrlInternal_OnEmptySubDomain_True()
+            {
+                Spider s = new Spider("https://www.civiltech.gr");
+                bool isInternal = s.IsUrlInternal("https://www.civiltech.gr", "");
+                Assert.IsTrue(isInternal);
+            }
+
+            [TestMethod()]
+            public void IsUrlInternal_OnBackSlash_True()
+            {
+                Spider s = new Spider("https://www.civiltech.gr");
+                bool isInternal = s.IsUrlInternal("https://www.civiltech.gr", "/");
+                Assert.IsTrue(isInternal);
+            }
+            [TestMethod()]
+            public void IsUrlInternal_OnOtherSite_True()
+            {
+                Spider s = new Spider("https://www.civiltech.gr");
+                bool isInternal = s.IsUrlInternal("https://www.civiltech.gr", "http://facebook.com");
+                Assert.IsFalse(isInternal);
+
+                isInternal = s.IsUrlInternal("https://www.civiltech.gr", "https://facebook.com");
+                Assert.IsFalse(isInternal);
+            }
+            #endregion
 
     }
 }

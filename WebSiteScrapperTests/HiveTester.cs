@@ -15,13 +15,13 @@ using System.Security.Policy;
 
 namespace WebSiteScrapperTests
 {
-    [TestClass()]    
+    [TestClass()]
     public class HiveTester
     {
 
         private string appConfig = "Server=localhost;Database=WebSiteScrapper;User Id=NewSA;Password=Password@1234;TrustServerCertificate=True";
 
-        
+
 
         [TestMethod()]
         public void TestAddUrlsToDb()
@@ -33,7 +33,7 @@ namespace WebSiteScrapperTests
             h.AddUrlsToDb(s.GetLinksAsTuples());
             Assert.IsTrue(h.GetAllDbUrls().Count() > 0);
             h.TruncateTable("Urls");
-                        
+
         }
 
         [TestMethod()]
@@ -61,13 +61,20 @@ namespace WebSiteScrapperTests
             Assert.IsNotNull(h.GetNextUrlFromDb());
             h.UpdateUrlAsVisited(h.GetNextUrlFromDb().Id);
             Assert.IsTrue(h.GetNextUrlFromDb().Id == 2);
-            
+
             h.UpdateUrlAsVisited(h.GetNextUrlFromDb().Id);
             Assert.IsTrue(h.GetNextUrlFromDb().Id == 3);
             h.TruncateTable("Urls");
 
         }
 
-
+        [TestMethod()]
+        public void TestGetAllUrlsFrom()
+        {
+            WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
+            Hive h = new Hive(_Context);
+            h.TruncateTable("Urls");
+            h.GetAllUrlsFrom("https://theotokatosfc.gr");
+        }
     }
 }

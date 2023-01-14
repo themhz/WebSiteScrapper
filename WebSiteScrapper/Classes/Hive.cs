@@ -44,8 +44,13 @@ namespace WebSiteScrapper.Classes
         public bool hasError = false;
         public WebSiteScrapperContext Context;
         public const bool _VISITED = true;
-        public bool _NOTVISITED = false;
+        public const bool _NOTVISITED = false;
+
+        public const int _ALL = 0;
+        public const int _INTERNAL = 1;
+        public const int _EXTERNAL = 2;
         public bool paused = false;
+
 
         public Hive(WebSiteScrapperContext _Context)
         {
@@ -53,18 +58,42 @@ namespace WebSiteScrapper.Classes
             
         }
 
+        public void GetAllUrlsFrom(string url)
+        {
+            this.baseurl = url;
+            this.AddUrlToDb(new Tuple<string?, string?, string?>(url, url, url), false);
+            Urls urls = GetNextUrlFromDb();
+            while (urls != null)
+            {
+                Spider s = new Spider(urls.Url);
+                List <Tuple<string?, string?, string?>>? links = s.GetLinksAsTuples(_INTERNAL);
+                if (links != null)
+                {
+                    this.AddUrlsToDb(links);                    
+                }
+                this.UpdateUrlAsVisited(urls.Id);
+                urls = GetNextUrlFromDb();
+            }
+        }
+        /// <summary>
+        /// This will add the urls to the database
+        /// </summary>
+        /// <param name="urls">BaseUrl,OriginalUrl,ParsedUrl</param>
         public void AddUrlsToDb(List<Tuple<string?, string?, string?>> urls)
         {
             if (urls != null)
             {
                 foreach (var url in urls)
-                {
-                    
+                {                    
                     AddUrlToDb(url, _NOTVISITED);                    
                 }
             }
         }
 
+        /// <summary>
+        /// This will add the urls to the database
+        /// </summary>
+        /// <param name="urls">BaseUrl,OriginalUrl,ParsedUrl</param>
         public void AddUrlToDb(Tuple<string?, string?, string?> url, bool visited)
         {
             Context.ChangeTracker.Clear();
@@ -77,7 +106,7 @@ namespace WebSiteScrapper.Classes
             Urls.Visited = visited;
             Urls.RefererUrl = url.Item1;
 
-            if (Urls != null)
+            if (Urls != null && !IsInDb(url.Item3))
             {
                 Context.Add(Urls);
                 Context.SaveChanges();

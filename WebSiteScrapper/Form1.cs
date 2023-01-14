@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
 using WebSiteScrapper.Classes;
+using Microsoft.Identity.Client;
 
 namespace WebSiteScrapper
 {
@@ -32,6 +33,11 @@ namespace WebSiteScrapper
         private string url;
         private void button1_Click(object sender, EventArgs e)
         {
+            WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
+            Hive h = new Hive(_Context);
+            h.TruncateTable("Urls");
+            h.GetAllUrlsFrom("https://theotokatosfc.gr");
+
             //    button1.Enabled = false;
             //    button2.Enabled = true;
             //    WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);

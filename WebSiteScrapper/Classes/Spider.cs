@@ -35,14 +35,14 @@ namespace WebSiteScrapper.Classes
         public HtmlDocument? GetPageAsHtmlDocument(string uri)
         {
 
-            string? pageAsString = GetPageAsString(uri);
-            if (pageAsString == null)
+            HtmlPage = GetPageAsString(uri);
+            if (HtmlPage == null)
             {
                 return null;
             }
             else
             {
-                HtmlDocument.LoadHtml(pageAsString);
+                HtmlDocument.LoadHtml(HtmlPage);
             }
 
 
@@ -63,25 +63,26 @@ namespace WebSiteScrapper.Classes
             {
                 foreach (var element in HtmlDocument.DocumentNode.SelectNodes("//a"))
                 {
-                    if (element.Attributes.Contains("href"))
+                    if (element.Attributes.Contains("href") && !element.Attributes["href"].Value.StartsWith("#"))
                     {
+                        var link = new Tuple<string?, string?, string?>(Url, element.Attributes["href"].Value, GetAbsoluteUrlString(Url, element.Attributes["href"].Value));
                         if (internalLinks == 1)
                         {
                             if (IsUrlInternal(Url, GetAbsoluteUrlString(Url, element.Attributes["href"].Value)))
                             {
-                                Links.Add((new Tuple<string?, string?, string?>(Url, element.Attributes["href"].Value, GetAbsoluteUrlString(Url, element.Attributes["href"].Value))));
+                                Links.Add(link);
                             }
                         }
                         else if (internalLinks == 2)
                         {
                             if (!IsUrlInternal(Url, GetAbsoluteUrlString(Url, element.Attributes["href"].Value)))
                             {
-                                Links.Add((new Tuple<string?, string?, string?>(Url, element.Attributes["href"].Value, GetAbsoluteUrlString(Url, element.Attributes["href"].Value))));
+                                Links.Add(link);
                             }
                         }
                         else
                         {
-                            Links.Add((new Tuple<string?, string?, string?>(Url, element.Attributes["href"].Value, GetAbsoluteUrlString(Url, element.Attributes["href"].Value))));
+                            Links.Add(link);
                         }
 
 

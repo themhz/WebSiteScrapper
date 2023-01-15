@@ -74,7 +74,7 @@ namespace WebSiteScrapperTests
             WebSiteScrapperContext _Context = new WebSiteScrapperContext(appConfig);
             Hive h = new Hive(_Context);
             h.TruncateTable("Urls");
-            h.GetAllUrlsFrom("https://theotokatosfc.gr");
+            h.ScanWebSite("https://theotokatosfc.gr");
         }
     }
 }

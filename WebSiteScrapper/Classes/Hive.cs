@@ -25,6 +25,7 @@ using System.Net.Http;
 using System.DirectoryServices.ActiveDirectory;
 using System.Linq.Expressions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace WebSiteScrapper.Classes
 {
@@ -52,27 +53,41 @@ namespace WebSiteScrapper.Classes
         public bool paused = false;
 
 
-        public Hive(WebSiteScrapperContext _Context)
+        public Hive(WebSiteScrapperContext _Context, Form1 _form)
         {
             Context = _Context;
-            
+            form = _form;
+        }
+        public Hive(WebSiteScrapperContext _Context)
+        {
+            Context = _Context;            
         }
 
-        public void GetAllUrlsFrom(string url)
+        public void ScanWebSite(string url)
         {
+            
             this.baseurl = url;
-            this.AddUrlToDb(new Tuple<string?, string?, string?>(url, url, url), false);
-            Urls urls = GetNextUrlFromDb();
-            while (urls != null)
+            this.AddUrlToDb(new Tuple<string?, string?, string?>(url, url, url), false);            
+            Urls = GetNextUrlFromDb();
+
+            while (Urls != null)
             {
-                Spider s = new Spider(urls.Url);
-                List <Tuple<string?, string?, string?>>? links = s.GetLinksAsTuples(_INTERNAL);
-                if (links != null)
+                if (!this.paused)
                 {
-                    this.AddUrlsToDb(links);                    
+                    Spider s = new Spider(Urls.Url);
+                    List<Tuple<string?, string?, string?>>? links = s.GetLinksAsTuples(_INTERNAL);
+
+                    if (links != null)
+                    {                                                
+                        this.AddUrlsToDb(links);                        
+                    }
+
+                    Urls.Title = s.GetTitle();
+                    Urls.Page = s.HtmlPage;
+                    this.UpdateUrlAsVisited(Urls.Id);
+                    Urls = GetNextUrlFromDb();
                 }
-                this.UpdateUrlAsVisited(urls.Id);
-                urls = GetNextUrlFromDb();
+                this.UpdateControls();
             }
         }
         /// <summary>
@@ -89,7 +104,6 @@ namespace WebSiteScrapper.Classes
                 }
             }
         }
-
         /// <summary>
         /// This will add the urls to the database
         /// </summary>
@@ -97,20 +111,24 @@ namespace WebSiteScrapper.Classes
         public void AddUrlToDb(Tuple<string?, string?, string?> url, bool visited)
         {
             Context.ChangeTracker.Clear();
-            Urls = new Urls();
-            Urls.Id = 0;
-            Urls.Baseurl = url.Item1;
-            Urls.Url = url.Item3;
-            Urls.Date = DateTime.Now;
-            Urls.Hash = "";
-            Urls.Visited = visited;
-            Urls.RefererUrl = url.Item1;
+            
+            
 
-            if (Urls != null && !IsInDb(url.Item3))
+            Urls urls = new Urls();
+            urls.Id = 0;
+            urls.Baseurl = this.baseurl;
+            urls.Url = url.Item3;
+            urls.Date = DateTime.Now;
+            urls.Hash = "";
+            urls.Visited = visited;
+            urls.RefererUrl = Urls==null? this.baseurl : Urls.Url;
+
+
+            if (!IsInDb(url.Item3))
             {
-                Context.Add(Urls);
+                Context.Add(urls);
                 Context.SaveChanges();
-            }
+            }            
         }
         public Urls GetNextUrlFromDb()
         {
@@ -120,19 +138,42 @@ namespace WebSiteScrapper.Classes
 
             return url;
         }
+        public void UpdateControls()
+        {
+            string message = "";
+            if (Urls != null)
+                message = "Scraping on " + Urls.Url;
+            else
+                message = "finished scraping all urls";
 
-        //public void UpdateControls()
-        //{
-        //    string message = "";
-        //    if (Urls != null)
-        //        message = "Scraping on " + Urls.Url;
-        //    else
-        //        message = "finished scraping all urls";
+            form.SetlabelValue(message, CalculateTotal().ToString(), CalculateYetToVisit().ToString(), CalculateVisited().ToString(), maxYetToVisit.ToString());
 
-        //    form.SetlabelValue(message, CalculateTotal().ToString(), CalculateYetToVisit().ToString(), CalculateVisited().ToString(), maxYetToVisit.ToString());
+            DataTable dt = form.CreateDataTable();
+            List<Urls> urls = GetAllDbUrls();
+            foreach (Urls url in urls)
+            {
+                DataRow row = dt.NewRow();
+                //table.Columns.Add("Id", typeof(int));
+                //table.Columns.Add("Title", typeof(string));
+                //table.Columns.Add("OriginalUrl", typeof(string));
+                //table.Columns.Add("Url", typeof(string));
+                //table.Columns.Add("Baseurl", typeof(string));
+                //table.Columns.Add("ReferenceUrl", typeof(string));
+                //table.Columns.Add("visited", typeof(bool));
+                row[0] = url.Id;
+                row[1] = url.Title;
+                row[2] = "";
+                row[3] = url.Url;
+                row[4] = url.Baseurl;
+                row[5] = url.RefererUrl;
+                row[6] = url.Visited;
+                dt.Rows.Add(row);                
+            }
 
-        //}
 
+            form.SetDataTable(dt);
+
+        }
         public int CalculateVisited()
         {
             //WebSiteScrapperContext context = new WebSiteScrapperContext();
@@ -176,8 +217,6 @@ namespace WebSiteScrapper.Classes
                 connection.Close();
             }
         }
-
-
         public void TruncateTable(string tableName)
         {
             string connectionString = Context.getConnectionString();
@@ -197,25 +236,27 @@ namespace WebSiteScrapper.Classes
                 connection.Close();
             }
         }
-
         public bool IsInDb(string url)
         {
             Urls? lurl = Context.Urls.Where(s => s.Url == url).FirstOrDefault();
             return lurl != null ? true : false;
         }
-
         public void UpdateUrlAsVisited(long id)
         {
             Context.ChangeTracker.Clear();
-            Urls = Context.Urls.Find(id);
-            
+            //Urls = Context.Urls.Find(id);
 
-            if (Urls != null)
+            Urls urls = Context.Urls.Find(id);
+            if (urls != null)
             {
-                Urls.Visited = true;
-                Context.Update(Urls);
+                urls.Baseurl = this.baseurl;                        
+                urls.Hash = "";
+                urls.Visited = _VISITED;
+                urls.Page = Urls.Page;
+                urls.Title = Urls.Title;
+                                      
+                Context.Update(urls);
                 Context.SaveChanges();
-
             }
 
         }
@@ -241,8 +282,6 @@ namespace WebSiteScrapper.Classes
                 return hash;
             }
         }
-
-
         //public List<Urls> GetAllUrlsFromSite_v2()
         //{
         //    //Helper just cleans the urls

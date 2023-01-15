@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
 using WebSiteScrapper.Classes;
 using Microsoft.Identity.Client;
+using System.Windows.Forms;
 
 namespace WebSiteScrapper
 {
@@ -22,7 +23,7 @@ namespace WebSiteScrapper
         public Form self;
         public Thread t1;
         public Thread t2;
-        public Spider scraper;
+        public Hive hive;
         public bool finished = false;
         public Form1()
         {
@@ -33,39 +34,28 @@ namespace WebSiteScrapper
         private string url;
         private void button1_Click(object sender, EventArgs e)
         {
-            WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
-            Hive h = new Hive(_Context);
-            h.TruncateTable("Urls");
-            h.GetAllUrlsFrom("https://theotokatosfc.gr");
-
-            //    button1.Enabled = false;
-            //    button2.Enabled = true;
-            //    WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
-            //    url = "https://www.kipodomi-tools.gr/";
-
-            //    scraper = new Spider(url, this, _Context);
-            //    t1 = new Thread(DoWork);
-            //    t1.Start();
-
-            //    t2 = new Thread(SetlabelValue);
-            //    t2.Start();
+            button1.Enabled = false;
+            button2.Enabled = true;
+            WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);                        
+            t1 = new Thread(DoWork);
+            t1.Start();
         }
         private void button2_Click(object sender, EventArgs e)
         {
-            //    if (scraper.paused == true)
-            //    {
-            //        MessageBox.Show("Resuming");
-            //        button2.Text = "Pause";
-            //        lblStatus.Text = "Resumed";
-            //        scraper.Start();
-            //    }
-            //    else
-            //    {                
-            //        MessageBox.Show("Pausing");
-            //        button2.Text = "Resume";
-            //        lblStatus.Text = "Paused";
-            //        scraper.Pause();
-            //    }                            
+            if (hive.paused == true)
+            {
+                MessageBox.Show("Resuming");
+                button2.Text = "Pause";
+                lblStatus.Text = "Resumed";
+                hive.Start();
+            }
+            else
+            {
+                MessageBox.Show("Pausing");
+                button2.Text = "Resume";
+                lblStatus.Text = "Paused";
+                hive.Pause();
+            }
 
         }
 
@@ -75,46 +65,59 @@ namespace WebSiteScrapper
 
             while(finished == false)
             {         
-                System.Threading.Thread.Sleep(1000);
+                Thread.Sleep(1000);
             }
             
         }
-        //private void DoWork(object state)
-        //{                        
-            
-        //    List<Urls> urls = scraper.GetAllUrlsFromSite_v2();
-        //    finished = true;
-        //    DataTable dt = CreateDataTable();
-        //    foreach (Urls url in urls)
-        //    {
-        //        DataRow row = dt.NewRow();
-        //        row[0] = url.Id;
-        //        row[1] = url.Url;
-        //        row[2] = url.Title;
-        //        row[3] = url.Hash;
-        //        dt.Rows.Add(row);
-        //    }
+        private void DoWork(object state)
+        {
+
+            //List<Urls> urls = scraper.GetAllUrlsFromSite_v2();
+            //AddColumnsToDataGridView(CreateDataTable());
+            WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
+            hive = new Hive(_Context, this);
+            hive.TruncateTable("Urls");
+            //hive.ScanWebSite("https://theotokatosfc.gr");
+            hive.ScanWebSite("https://www.civiltech.gr/");
 
 
-        //    SetDataTable(dt);
-        //    ToggleProcess();
+            finished = true;           
+            ToggleProcess();
 
-        //}
+        }
 
-        private DataTable CreateDataTable()
+        public DataTable CreateDataTable()
         {
             // Create a new DataTable.
             DataTable table = new DataTable();
 
             // Add two columns to the DataTable.
             table.Columns.Add("Id", typeof(int));
-            table.Columns.Add("Url", typeof(string));
             table.Columns.Add("Title", typeof(string));
-            table.Columns.Add("Body", typeof(string));
-            table.Columns.Add("Hash", typeof(string));
+            table.Columns.Add("OriginalUrl", typeof(string));
+            table.Columns.Add("Url", typeof(string));
+            table.Columns.Add("Baseurl", typeof(string));                      
+            table.Columns.Add("ReferenceUrl", typeof(string));
+            table.Columns.Add("visited", typeof(bool));
 
+           
             return table;
-        }        
+        }       
+        
+       
+        public delegate void DelAddColumnsToDataGridView(DataTable dt);
+        public void AddColumnsToDataGridView(DataTable dt)
+        {
+            if (this.InvokeRequired) this.Invoke(new DelAddColumnsToDataGridView(AddColumnsToDataGridView), dt);
+            else
+            {
+                foreach (DataColumn dc in dt.Columns)
+                {
+                    dgrView.Columns.Add(dc.ColumnName, dc.ColumnName);
+                }
+            }
+
+        }
 
 
         #region Deligates
@@ -139,8 +142,35 @@ namespace WebSiteScrapper
             if (this.InvokeRequired) this.Invoke(new DelSetLabelDataView(SetDataTable), dt);
             else
             {
+                int selRow = 0, selCol = 0;
+
+                if (dgrView.SelectedCells.Count > 0)
+                {
+                    selRow = dgrView.CurrentCell.RowIndex;
+                    selCol = dgrView.CurrentCell.ColumnIndex;
+                }
+
+               
                 dgrView.DataSource = dt;
                 dgrView.Update();
+
+                dgrView.Rows[selRow].Cells[selCol].Selected = true;
+                dgrView.CurrentCell = dgrView.Rows[selRow].Cells[selCol];
+                
+
+
+            }
+
+        }
+
+        public delegate void DelAddRowToDataTable(DataRow dr);
+        public void AddRowToDataTable(DataRow dr)
+        {
+            if (this.InvokeRequired) this.Invoke(new DelAddRowToDataTable(AddRowToDataTable), dr);
+            else
+            {                
+                dgrView.Rows.Add(dr.ItemArray);                
+                dgrView.Update();               
             }
 
         }

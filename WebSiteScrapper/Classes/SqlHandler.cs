@@ -21,7 +21,7 @@ namespace WebSiteScrapper.Classes
         private string connectionString;
         public const bool _VISITED = true;
         public const bool _NOTVISITED = false;
-
+        public int testvar;
         public const int _ALL = 0;
         public const int _INTERNAL = 1;
         public const int _EXTERNAL = 2;

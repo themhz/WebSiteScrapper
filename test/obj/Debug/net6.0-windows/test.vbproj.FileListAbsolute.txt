@@ -1,0 +1,12 @@
+C:\Users\themis\source\repos\WebSiteScrapper\test\bin\Debug\net6.0-windows\test.deps.json
+C:\Users\themis\source\repos\WebSiteScrapper\test\bin\Debug\net6.0-windows\test.dll
+C:\Users\themis\source\repos\WebSiteScrapper\test\bin\Debug\net6.0-windows\test.pdb
+C:\Users\themis\source\repos\WebSiteScrapper\test\obj\Debug\net6.0-windows\test.vbproj.AssemblyReference.cache
+C:\Users\themis\source\repos\WebSiteScrapper\test\obj\Debug\net6.0-windows\test.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\themis\source\repos\WebSiteScrapper\test\obj\Debug\net6.0-windows\test.AssemblyInfoInputs.cache
+C:\Users\themis\source\repos\WebSiteScrapper\test\obj\Debug\net6.0-windows\test.AssemblyInfo.vb
+C:\Users\themis\source\repos\WebSiteScrapper\test\obj\Debug\net6.0-windows\test.vbproj.CoreCompileInputs.cache
+C:\Users\themis\source\repos\WebSiteScrapper\test\obj\Debug\net6.0-windows\test.dll
+C:\Users\themis\source\repos\WebSiteScrapper\test\obj\Debug\net6.0-windows\refint\test.dll
+C:\Users\themis\source\repos\WebSiteScrapper\test\obj\Debug\net6.0-windows\test.pdb
+C:\Users\themis\source\repos\WebSiteScrapper\test\obj\Debug\net6.0-windows\ref\test.dll

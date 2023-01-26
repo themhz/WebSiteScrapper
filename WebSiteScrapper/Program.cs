@@ -10,8 +10,8 @@ namespace WebSiteScrapper
         {
             
             ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
-            //Application.Run(new Browser());
+            //Application.Run(new Form1());
+            Application.Run(new Browser());
         }
     }
 }

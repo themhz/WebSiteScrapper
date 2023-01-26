@@ -76,3 +76,12 @@ C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-wi
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\Microsoft.Web.WebView2.Wpf.dll
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\Webview.dll
 C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\AngleSharp.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\Microsoft.Win32.SystemEvents.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\ServiceStack.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\ServiceStack.Client.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\ServiceStack.Common.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\ServiceStack.Interfaces.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\ServiceStack.Text.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\System.Drawing.Common.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\themis\source\repos\WebSiteScrapper\WebSiteScrapper\bin\Debug\net6.0-windows\runtimes\win\lib\net6.0\System.Drawing.Common.dll

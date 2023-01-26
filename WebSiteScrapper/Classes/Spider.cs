@@ -69,9 +69,7 @@ namespace WebSiteScrapper.Classes
                     
                     if (element.Attributes.Contains("href") && !element.Attributes["href"].Value.StartsWith("#"))
                     {
-                        string href = element.Attributes["href"].Value;
-                        //string absoluturl = this.CheckRedirection(this.Url, href);                        
-                        //string absoluturl = null;
+                        string href = element.Attributes["href"].Value;                        
                         var link = new Tuple<string?, string?, string?>(Url, href, href);                        
                         if (internalLinks == 1)
                         {

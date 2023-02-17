@@ -36,14 +36,22 @@ namespace WebSiteScrapper
         private string url;
         private void button1_Click(object sender, EventArgs e)
         {
-            button1.Enabled = false;
-            button2.Enabled = true;
-            WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);                        
-            t1 = new Thread(DoWork);
-            t1.Start();
+            if (txtUrl.Text.Trim() != "")
+            {
+                button1.Enabled = false;
+                button2.Enabled = true;
+                WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
+                t1 = new Thread(DoWork);
+                t1.Start();
 
-            t2 = new Thread(UpdateControls);
-            t2.Start();
+                t2 = new Thread(UpdateControls);
+                t2.Start();
+            }
+            else
+            {
+                MessageBox.Show("Please provide a url");
+            }
+            
                         
         }
         private void button2_Click(object sender, EventArgs e)
@@ -76,7 +84,18 @@ namespace WebSiteScrapper
             hive = new Hive(_Context, this);
             //sh.TruncateTable("Urls");
             //hive.ScanWebSite("https://theotokatosfc.gr");
-            hive.ScanWebSite("https://www.civiltech.gr/");
+            //hive.ScanWebSite("https://www.civiltech.gr/");
+            string url = txtUrl.Text.Trim();
+
+            if(url.StartsWith("http://") || url.StartsWith("https://"))
+            {
+                hive.ScanWebSite(url);
+            }
+            else
+            {
+                hive.ScanWebSite("https://"+url);
+            }
+                
 
 
             finished = true;           
@@ -209,6 +228,64 @@ namespace WebSiteScrapper
 
         }
 
+        public void SetDataTableWithProblematicLinks()
+        {
+            if (this.InvokeRequired) this.Invoke(new DelSetLabelDataView(SetDataTable));
+            else
+            {
+                WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);
+                DataTable dt = this.CreateDataTable();
+                SqlHandler sh = new SqlHandler(_Context);
+                List<Urls> urls = sh.GetAllDbUrls();
+
+                foreach (Urls url in urls)
+                {
+                    DataRow row = dt.NewRow();
+                    //table.Columns.Add("Id", typeof(int));
+                    //table.Columns.Add("Title", typeof(string));
+                    //table.Columns.Add("OriginalUrl", typeof(string));
+                    //table.Columns.Add("Url", typeof(string));
+                    //table.Columns.Add("ReferenceUrl", typeof(string));
+                    //table.Columns.Add("Baseurl", typeof(string));
+                    //table.Columns.Add("visited", typeof(bool));
+                    //table.Columns.Add("status", typeof(string));
+                    row[0] = url.Id;
+                    row[1] = url.Title;
+                    row[2] = url.OriginalUrl;
+                    row[3] = url.Url;
+                    row[4] = url.RefererUrl;
+                    row[5] = url.Baseurl;
+                    row[6] = url.Visited;
+                    row[7] = url.Status;
+                    dt.Rows.Add(row);
+                }
+
+                int selRow = 0, selCol = 0;
+
+                if (dgrView.SelectedCells.Count > 0)
+                {
+                    selRow = dgrView.CurrentCell.RowIndex;
+                    selCol = dgrView.CurrentCell.ColumnIndex;
+                }
+
+
+                dgrView.DataSource = dt;
+                dgrView.Update();
+
+                dgrView.Rows[selRow].Cells[selCol].Selected = true;
+                dgrView.CurrentCell = dgrView.Rows[selRow].Cells[selCol];
+
+
+
+            }
+        }
+
+        public void DeleteAllLinks()
+        {
+            WebSiteScrapperContext _Context = new WebSiteScrapperContext(ConfigurationManager.ConnectionStrings["MyDbConnection"].ConnectionString);            
+            SqlHandler sh = new SqlHandler(_Context);
+            sh.TruncateTable("Urls");
+        }
         public delegate void DelAddRowToDataTable(DataRow dr);
         public void AddRowToDataTable(DataRow dr)
         {
@@ -244,6 +321,17 @@ namespace WebSiteScrapper
         private void button3_Click(object sender, EventArgs e)
         {
             SetDataTable();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            SetDataTableWithProblematicLinks();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            DeleteAllLinks();
+            MessageBox.Show("Links Deleted");
         }
     }
 }

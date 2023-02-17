@@ -51,10 +51,9 @@ namespace WebSiteScrapper
         private async void button1_Click(object sender, EventArgs e)
         {
 
-            //firstTask();
-            //Task.Run(async () => SecondTask());
-            //Task.Run(async () => ThirdTask());
-            SecondTask();
+            //firstTask()            
+            SecondTask();//This is the one working
+
             //ThirdTask();
         }
 
@@ -62,12 +61,12 @@ namespace WebSiteScrapper
         {
             Spider s = new Spider();
             string url = "https://services.tee.gr/auth/faces/appMain";
-           string page = s.GetPageAsString(url);
-           richTextBox1.Text = page;
+            //string page = s.GetPageAsString(url);
+               //richTextBox1.Text = page;
 
-            //await webView21.EnsureCoreWebView2Async();
-            //webView21.NavigateToString(page);
-            //webView21.NavigateToString("https://services.tee.gr/auth/faces/appMain");
+                //await webView21.EnsureCoreWebView2Async();
+                //webView21.NavigateToString(page);
+                //webView21.NavigateToString("https://services.tee.gr/auth/faces/appMain");
 
 
             webView21.Source = new Uri("https://services.tee.gr/auth/faces/appMain", UriKind.Absolute);

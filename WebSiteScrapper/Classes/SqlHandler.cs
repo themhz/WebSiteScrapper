@@ -235,6 +235,12 @@ namespace WebSiteScrapper.Classes
             return ConvertDataSetToUrls(url);
         }
 
+        public List<Urls> GetDataTableWithProblematicLinks()
+        {
+            var url = Select("select * from Urls where status != 'OK' or title = ''");
+            return ConvertDataSetToUrls(url);
+        }
+
         public Urls? GetUrlByUrlField(string url)
         {
             Urls urls = Context.Urls.Where(x => x.Url == url).First();
